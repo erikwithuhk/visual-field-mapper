@@ -8,7 +8,7 @@ class VisualField:
     def __repr__(self):
         from pprint import pformat
 
-        return "VisualField: " + pformat(vars(self), indent=2)
+        return "VisualField: " + pformat(vars(self))
 
     def __create_points(self, values: list[int]):
         values_length = 52

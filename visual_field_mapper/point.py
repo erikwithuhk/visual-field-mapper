@@ -8,7 +8,7 @@ class Point:
     def __repr__(self):
         from pprint import pformat
 
-        return "Point: " + pformat(vars(self), indent=2)
+        return "Point: " + pformat(vars(self))
 
     def __is_position_between(self, start: int, end: int):
         return self.position >= start and self.position <= end
