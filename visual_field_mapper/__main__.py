@@ -1,4 +1,5 @@
 from .visual_field import VisualField
+from .printer import Printer
 
 
 def main():
@@ -58,7 +59,8 @@ def main():
     ]
 
     visual_field = VisualField(values)
-    visual_field.print()
+    printer = Printer()
+    printer.print(visual_field)
 
 
 if __name__ == "__main__":
