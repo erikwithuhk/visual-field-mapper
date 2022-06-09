@@ -3,7 +3,7 @@ from setuptools import setup
 
 dev_requirements = ["black>=22.3.0"]
 
-requirements = []
+requirements = ["colorama>=0.4.4"]
 
 extra_requirements = {"dev": dev_requirements}
 

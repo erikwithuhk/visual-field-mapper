@@ -1,8 +1,10 @@
-from .visual_field import VisualField
+import argparse
+
 from .printer import Printer
+from .visual_field import VisualField
 
 
-def main():
+def main(flip: bool = False, type: str = None):
     values = [
         1,
         1,
@@ -60,8 +62,12 @@ def main():
 
     visual_field = VisualField(values)
     printer = Printer()
-    printer.print(visual_field)
+    printer.print(visual_field, flip=flip, type=type)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--flip", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("-t", "--type", help='"central_peripheral" or "garway_heath"')
+    args = parser.parse_args()
+    main(flip=args.flip, type=args.type)
