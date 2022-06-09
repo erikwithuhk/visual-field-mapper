@@ -1,6 +1,7 @@
 class Point:
-    def __init__(self, position):
+    def __init__(self, position, value):
         self.position = position
+        self.value = value
 
     def __repr__(self):
         from pprint import pformat
