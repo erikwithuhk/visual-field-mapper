@@ -1,73 +1,33 @@
 import argparse
+import os
 
-from .printer import Printer
-from .visual_field import VisualField
+from .file_reader import FileReader
+from .garway_heath import GarwayHeathSectorization
+
+from .visual_field import Point, VisualField
+
+root_dir = os.path.dirname(os.path.realpath(__file__))
+data_dir = os.path.join(root_dir, "data")
+file_reader = FileReader()
 
 
-def main(flip: bool = False, type: str = None):
-    values = [
-        1,
-        1,
-        0,
-        1,
-        2,
-        3,
-        1,
-        0,
-        1,
-        0,
-        2,
-        2,
-        4,
-        1,
-        2,
-        1,
-        1,
-        2,
-        5,
-        5,
-        6,
-        3,
-        3,
-        3,
-        3,
-        5,
-        19,
-        21,
-        20,
-        22,
-        21,
-        22,
-        21,
-        22,
-        20,
-        22,
-        22,
-        22,
-        22,
-        22,
-        22,
-        23,
-        22,
-        22,
-        22,
-        22,
-        23,
-        22,
-        22,
-        22,
-        22,
-        22,
-    ]
+def main():
+    scans = file_reader.read_csv(os.path.join(data_dir, "normal.csv"))
 
-    visual_field = VisualField(values)
-    printer = Printer()
-    printer.print(visual_field, flip=flip, type=type)
+    for scan in scans:
+        points = []
+        for i in range(1, 55):
+            if i == 26 or i == 35:
+                points.append(Point(i, None))
+            else:
+                points.append(Point(i, int(scan[f"td{i}"])))
+
+        visual_field = VisualField(points)
+        garway_heath = GarwayHeathSectorization(visual_field)
+        print(garway_heath, "\n")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="visual_field_mapper")
-    parser.add_argument("--flip", default=False, action=argparse.BooleanOptionalAction)
-    parser.add_argument("-t", "--type", help='"central_peripheral" or "garway_heath"')
     args = parser.parse_args()
-    main(flip=args.flip, type=args.type)
+    main()
