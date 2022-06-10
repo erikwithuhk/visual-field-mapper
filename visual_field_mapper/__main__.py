@@ -2,9 +2,10 @@ import argparse
 import csv
 import math
 
-from .file_reader import FileReader
-from .garway_heath import GarwayHeathSectorization
+import pandas as pd
 
+from .file_reader import FileReader
+from .garway_heath import GarwayHeathSectorization, Sectors
 from .visual_field import Point, VisualField
 
 file_reader = FileReader()
@@ -45,6 +46,28 @@ def get_average_by_sector(input_filepath: str, output_filepath: str):
         writer.writerows(averages)
 
 
+def get_all_averages_by_sector(input_filepath: str, output_filepath: str):
+    df = pd.read_csv(input_filepath)
+
+    result = []
+
+    for sector in Sectors:
+        if sector.value.abbreviation != "BS":
+            result.append(
+                {
+                    "sector": sector.value.abbreviation,
+                    "mean": df[sector.value.abbreviation].mean(),
+                    "std_dev": df[sector.value.abbreviation].std(),
+                }
+            )
+
+    fieldnames = list(result[0].keys())
+    with open(output_filepath, "w", encoding="UTF8") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(result)
+
+
 def get_max_min(input_filepath: str):
     scans = file_reader.read_csv(input_filepath)
 
@@ -75,6 +98,10 @@ if __name__ == "__main__":
     average_by_sector.add_argument("inputfile", type=str)
     average_by_sector.add_argument("outputfile", type=str)
 
+    all_averages_by_sector = subparser.add_parser("all-averages")
+    all_averages_by_sector.add_argument("inputfile", type=str)
+    all_averages_by_sector.add_argument("outputfile", type=str)
+
     max_min = subparser.add_parser("max-min")
     max_min.add_argument("inputfile", type=str)
 
@@ -82,6 +109,9 @@ if __name__ == "__main__":
 
     if args.command == "average-by-sector":
         get_average_by_sector(args.inputfile, args.outputfile)
+
+    if args.command == "all-averages":
+        get_all_averages_by_sector(args.inputfile, args.outputfile)
 
     if args.command == "max-min":
         get_max_min(args.inputfile)

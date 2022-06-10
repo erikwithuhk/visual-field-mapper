@@ -5,7 +5,7 @@ test_requirements = ["faker>=13.13.0", "pytest>=7.1.2"]
 
 dev_requirements = [*test_requirements, "black>=22.3.0"]
 
-requirements = ["colorama>=0.4.4"]
+requirements = ["colorama>=0.4.4", "pandas>=1.4.2"]
 
 extra_requirements = {"dev": dev_requirements}
 
