@@ -66,7 +66,7 @@ def main(flip: bool = False, type: str = None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="visual_field_mapper")
     parser.add_argument("--flip", default=False, action=argparse.BooleanOptionalAction)
     parser.add_argument("-t", "--type", help='"central_peripheral" or "garway_heath"')
     args = parser.parse_args()
