@@ -1,15 +1,31 @@
 import enum
-from typing import NamedTuple
+from statistics import mean
 
 from colorama import Back, Style
 
 from .visual_field import Point, VisualField
 
 
-class Sector(NamedTuple):
-    name: str
-    abbreviation: str
-    print_color: str
+class Sector:
+    def __init__(self, name: str, abbreviation: str, print_color: str):
+        self.name = name
+        self.abbreviation = abbreviation
+        self.print_color = print_color
+        self.__points = []
+
+    def __repr__(self) -> str:
+        from pprint import pformat
+
+        return "Sector: " + pformat(vars(self))
+
+    def get_points(self):
+        return self.__points
+
+    def add_point(self, point: Point):
+        self.__points.append(point)
+
+    def get_average_total_deviation(self):
+        return mean([point.total_deviation for point in self.__points])
 
 
 class Sectors(enum.Enum):
@@ -53,6 +69,22 @@ def get_sector(point: Point):
 class GarwayHeathSectorization:
     def __init__(self, visual_field: VisualField):
         self.visual_field = visual_field
+
+    def get_averages_by_sector(self):
+        for point in self.visual_field.points:
+            sector = get_sector(point)
+
+            if sector != sector.BS:
+                sector.value.add_point(point)
+
+        points_by_sector = {
+            sector.value.abbreviation: sector.value.get_points() for sector in Sectors
+        }
+        return {
+            sector.value.abbreviation: sector.value.get_average_total_deviation()
+            for sector in Sectors
+            if sector != Sectors.BS
+        }
 
     def __format_point(self, point: Point):
         sector = get_sector(point)

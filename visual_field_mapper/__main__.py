@@ -1,20 +1,24 @@
 import argparse
-import os
+import csv
+import math
 
 from .file_reader import FileReader
 from .garway_heath import GarwayHeathSectorization
 
 from .visual_field import Point, VisualField
 
-root_dir = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(root_dir, "data")
 file_reader = FileReader()
 
 
-def main():
-    scans = file_reader.read_csv(os.path.join(data_dir, "normal.csv"))
+def get_average_by_sector(input_filepath: str, output_filepath: str):
+    scans = file_reader.read_csv(input_filepath)
+    averages = []
 
     for scan in scans:
+        patient_id = scan["PtID"]
+        test_date = scan["TestDt"]
+        eye = scan["EYE"]
+
         points = []
         for i in range(1, 55):
             if i == 26 or i == 35:
@@ -24,10 +28,60 @@ def main():
 
         visual_field = VisualField(points)
         garway_heath = GarwayHeathSectorization(visual_field)
-        print(garway_heath, "\n")
+        averages_by_sector = garway_heath.get_averages_by_sector()
+        averages.append(
+            {
+                "patient_id": patient_id,
+                "test_date": test_date,
+                "eye": eye,
+                **averages_by_sector,
+            }
+        )
+
+    fieldnames = list(averages[0].keys())
+    with open(output_filepath, "w", encoding="UTF8") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(averages)
+
+
+def get_max_min(input_filepath: str):
+    scans = file_reader.read_csv(input_filepath)
+
+    keys = []
+
+    for i in range(1, 55):
+        if i == 26 or i == 35:
+            pass
+        else:
+            keys.append(f"td{i}")
+
+    max_td = -math.inf
+    min_td = math.inf
+
+    for scan in scans:
+        for key in keys:
+            max_td = max(max_td, int(scan[key]))
+            min_td = min(min_td, int(scan[key]))
+
+    print(f"Max: {max_td}, Min: {min_td}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog="visual_field_mapper")
+    parser = argparse.ArgumentParser("visual_field_mapper")
+    subparser = parser.add_subparsers(dest="command")
+
+    average_by_sector = subparser.add_parser("average-by-sector")
+    average_by_sector.add_argument("inputfile", type=str)
+    average_by_sector.add_argument("outputfile", type=str)
+
+    max_min = subparser.add_parser("max-min")
+    max_min.add_argument("inputfile", type=str)
+
     args = parser.parse_args()
-    main()
+
+    if args.command == "average-by-sector":
+        get_average_by_sector(args.inputfile, args.outputfile)
+
+    if args.command == "max-min":
+        get_max_min(args.inputfile)

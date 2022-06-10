@@ -1,7 +1,9 @@
 from importlib.metadata import entry_points
 from setuptools import setup
 
-dev_requirements = ["black>=22.3.0"]
+test_requirements = ["faker>=13.13.0", "pytest>=7.1.2"]
+
+dev_requirements = [*test_requirements, "black>=22.3.0"]
 
 requirements = ["colorama>=0.4.4"]
 
