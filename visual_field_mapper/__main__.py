@@ -2,6 +2,7 @@ import argparse
 import csv
 import math
 
+import numpy as np
 import pandas as pd
 
 from .file_reader import FileReader
@@ -44,6 +45,28 @@ def get_average_by_sector(input_filepath: str, output_filepath: str):
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(averages)
+
+
+def get_percentile(input_filepath: str, output_filepath: str, percentile: int):
+    df = pd.read_csv(input_filepath)
+
+    result = []
+
+    for sector in Sectors:
+        if sector.value.abbreviation != "BS":
+            column = sector.value.abbreviation
+            result.append(
+                {
+                    "sector": column,
+                    "percentile-005": np.percentile(df[column], percentile),
+                }
+            )
+
+    fieldnames = list(result[0].keys())
+    with open(output_filepath, "w", encoding="UTF8") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(result)
 
 
 def get_all_averages_by_sector(input_filepath: str, output_filepath: str):
@@ -105,6 +128,11 @@ if __name__ == "__main__":
     max_min = subparser.add_parser("max-min")
     max_min.add_argument("inputfile", type=str)
 
+    percentile = subparser.add_parser("percentile")
+    percentile.add_argument("inputfile", type=str)
+    percentile.add_argument("outputfile", type=str)
+    percentile.add_argument("percentile", type=int)
+
     args = parser.parse_args()
 
     if args.command == "average-by-sector":
@@ -112,6 +140,9 @@ if __name__ == "__main__":
 
     if args.command == "all-averages":
         get_all_averages_by_sector(args.inputfile, args.outputfile)
+
+    if args.command == "percentile":
+        get_percentile(args.inputfile, args.outputfile, args.percentile)
 
     if args.command == "max-min":
         get_max_min(args.inputfile)
