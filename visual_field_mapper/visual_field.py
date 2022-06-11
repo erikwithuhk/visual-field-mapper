@@ -12,7 +12,6 @@ class Point:
         from pprint import pformat
 
         return pformat(vars(self))
-        # return "Point: " + pformat(vars(self))
 
 
 class VisualField:
@@ -22,4 +21,4 @@ class VisualField:
     def __repr__(self) -> str:
         from pprint import pformat
 
-        return "VisualField: " + pformat(vars(self))
+        return pformat(vars(self))
