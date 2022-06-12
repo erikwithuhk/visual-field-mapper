@@ -2,12 +2,10 @@ import pytest
 from visual_field_mapper.garway_heath import (
     GarwayHeathSectorization,
     Sector,
-    Sectors,
+    SECTORS,
     get_sector,
 )
 from visual_field_mapper.visual_field import Point, VisualField
-
-from visual_field_mapper.test.test_visual_field import points, total_deviations
 
 
 @pytest.fixture
@@ -15,90 +13,69 @@ def sector():
     return Sector("name", "NN", "")
 
 
-def test_add_point(points, sector):
-    sector.add_point(points[0])
-    sector.add_point(points[1])
-    sector.add_point(points[2])
-
-    sector_points = sector.get_points()
-    assert sector_points[0] == points[0]
-    assert sector_points[1] == points[1]
-    assert sector_points[2] == points[2]
-
-
-def test_get_average_total_deviation(sector):
-    sector.add_point(Point(1, 0))
-    assert sector.get_average_total_deviation() == 0
-    sector.add_point(Point(2, 1))
-    assert sector.get_average_total_deviation() == 0.5
-    sector.add_point(Point(3, 2))
-    assert sector.get_average_total_deviation() == 1
-    sector.add_point(Point(4, 4))
-    assert sector.get_average_total_deviation() == 1.75
-
-
 @pytest.mark.parametrize(
     "position, expected_sector",
     [
-        (1, Sectors.IN),
-        (2, Sectors.IN),
-        (3, Sectors.IN),
-        (4, Sectors.IN),
-        (5, Sectors.IN),
-        (6, Sectors.IT),
-        (7, Sectors.IT),
-        (8, Sectors.IT),
-        (9, Sectors.IT),
-        (10, Sectors.IN),
-        (11, Sectors.IT),
-        (12, Sectors.IT),
-        (13, Sectors.IT),
-        (14, Sectors.IT),
-        (15, Sectors.IT),
-        (16, Sectors.IT),
-        (17, Sectors.IN),
-        (18, Sectors.N),
-        (19, Sectors.IT),
-        (20, Sectors.IT),
-        (21, Sectors.IT),
-        (22, Sectors.IT),
-        (23, Sectors.T),
-        (24, Sectors.T),
-        (25, Sectors.T),
-        (26, Sectors.BS),
-        (27, Sectors.N),
-        (28, Sectors.SN),
-        (29, Sectors.ST),
-        (30, Sectors.ST),
-        (31, Sectors.ST),
-        (32, Sectors.T),
-        (33, Sectors.T),
-        (34, Sectors.T),
-        (35, Sectors.BS),
-        (36, Sectors.N),
-        (37, Sectors.SN),
-        (38, Sectors.ST),
-        (39, Sectors.ST),
-        (40, Sectors.ST),
-        (41, Sectors.ST),
-        (42, Sectors.ST),
-        (43, Sectors.SN),
-        (44, Sectors.N),
-        (45, Sectors.SN),
-        (46, Sectors.SN),
-        (47, Sectors.ST),
-        (48, Sectors.ST),
-        (49, Sectors.SN),
-        (50, Sectors.SN),
-        (51, Sectors.SN),
-        (52, Sectors.SN),
-        (53, Sectors.SN),
-        (54, Sectors.SN),
+        (1, "IN"),
+        (2, "IN"),
+        (3, "IN"),
+        (4, "IN"),
+        (5, "IN"),
+        (6, "IT"),
+        (7, "IT"),
+        (8, "IT"),
+        (9, "IT"),
+        (10, "IN"),
+        (11, "IT"),
+        (12, "IT"),
+        (13, "IT"),
+        (14, "IT"),
+        (15, "IT"),
+        (16, "IT"),
+        (17, "IN"),
+        (18, "N"),
+        (19, "IT"),
+        (20, "IT"),
+        (21, "IT"),
+        (22, "IT"),
+        (23, "T"),
+        (24, "T"),
+        (25, "T"),
+        (26, "BS"),
+        (27, "N"),
+        (28, "SN"),
+        (29, "ST"),
+        (30, "ST"),
+        (31, "ST"),
+        (32, "T"),
+        (33, "T"),
+        (34, "T"),
+        (35, "BS"),
+        (36, "N"),
+        (37, "SN"),
+        (38, "ST"),
+        (39, "ST"),
+        (40, "ST"),
+        (41, "ST"),
+        (42, "ST"),
+        (43, "SN"),
+        (44, "N"),
+        (45, "SN"),
+        (46, "SN"),
+        (47, "ST"),
+        (48, "ST"),
+        (49, "SN"),
+        (50, "SN"),
+        (51, "SN"),
+        (52, "SN"),
+        (53, "SN"),
+        (54, "SN"),
     ],
 )
 def test_get_sector(position, expected_sector):
     point = Point(position, 0)
-    assert get_sector(point) == expected_sector
+    sector = get_sector(point)
+    assert sector.abbreviation == expected_sector
 
 
 @pytest.mark.parametrize(
@@ -162,12 +139,12 @@ def test_get_sector(position, expected_sector):
                 -3,
             ],
             {
-                "SN": -1.363636364,
-                "N": -4.5,
                 "IN": -3.142857143,
                 "IT": -2.571428571,
                 "T": -3,
+                "N": -4.5,
                 "ST": -1.7,
+                "SN": -1.363636364,
             },
         ),
         (
@@ -228,12 +205,12 @@ def test_get_sector(position, expected_sector):
                 -3,
             ],
             {
-                "SN": -1.181818182,
-                "N": -1.75,
                 "IN": -2.285714286,
                 "IT": -3.214285714,
                 "T": -1.833333333,
+                "N": -1.75,
                 "ST": -1.5,
+                "SN": -1.181818182,
             },
         ),
         (
@@ -294,12 +271,78 @@ def test_get_sector(position, expected_sector):
                 -3,
             ],
             {
-                "SN": -2.636363636,
-                "N": -3.25,
                 "IN": -13.71428571,
                 "IT": -4.785714286,
                 "T": -2.833333333,
+                "N": -3.25,
                 "ST": -3.5,
+                "SN": -2.636363636,
+            },
+        ),
+        (
+            [
+                -1,
+                -1,
+                0,
+                0,
+                0,
+                -1,
+                1,
+                2,
+                1,
+                -6,
+                1,
+                -1,
+                3,
+                -3,
+                -2,
+                -4,
+                -1,
+                0,
+                1,
+                -1,
+                -1,
+                -1,
+                0,
+                -2,
+                -2,
+                None,
+                1,
+                0,
+                2,
+                2,
+                0,
+                3,
+                0,
+                0,
+                None,
+                3,
+                -2,
+                2,
+                -6,
+                -2,
+                -3,
+                -5,
+                -1,
+                -1,
+                0,
+                0,
+                0,
+                -3,
+                0,
+                3,
+                -2,
+                -1,
+                -2,
+                2,
+            ],
+            {
+                "IN": -1.285714286,
+                "IT": -0.3571428571,
+                "T": -0.1666666667,
+                "N": 0.75,
+                "ST": -1.3,
+                "SN": -0.2727272727,
             },
         ),
     ],
@@ -309,9 +352,9 @@ def test_get_averages_by_sector(tds, expected):
     visual_field = VisualField(points)
     garway_heath = GarwayHeathSectorization(visual_field)
     actual = garway_heath.get_averages_by_sector()
-    assert round(actual["SN"], 4) == round(expected["SN"], 4)
-    assert round(actual["N"], 4) == round(expected["N"], 4)
     assert round(actual["IN"], 4) == round(expected["IN"], 4)
     assert round(actual["IT"], 4) == round(expected["IT"], 4)
     assert round(actual["T"], 4) == round(expected["T"], 4)
+    assert round(actual["N"], 4) == round(expected["N"], 4)
     assert round(actual["ST"], 4) == round(expected["ST"], 4)
+    assert round(actual["SN"], 4) == round(expected["SN"], 4)

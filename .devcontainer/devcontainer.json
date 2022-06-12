@@ -14,7 +14,7 @@
   // Set *default* container specific settings.json values on container create.
   "settings": {
     "python.formatting.provider": "black",
-    "python.testing.pytestArgs": [ "visual_field_mapper/test" ],
+    "python.testing.pytestArgs": [ "visual_field_mapper/pytest" ],
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false
   },

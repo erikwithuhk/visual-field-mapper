@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from .file_reader import FileReader
-from .garway_heath import GarwayHeathSectorization, Sectors
+from .garway_heath import GarwayHeathSectorization, SECTORS
 from .visual_field import Point, VisualField
 
 file_reader = FileReader()
@@ -18,8 +18,6 @@ def get_average_by_sector(input_filepath: str, output_filepath: str):
 
     for scan in scans:
         patient_id = scan["PtID"]
-        test_date = scan["TestDt"]
-        eye = scan["EYE"]
 
         points = []
         for i in range(1, 55):
@@ -34,8 +32,6 @@ def get_average_by_sector(input_filepath: str, output_filepath: str):
         averages.append(
             {
                 "patient_id": patient_id,
-                "test_date": test_date,
-                "eye": eye,
                 **averages_by_sector,
             }
         )
@@ -47,48 +43,29 @@ def get_average_by_sector(input_filepath: str, output_filepath: str):
         writer.writerows(averages)
 
 
-def get_percentile(input_filepath: str, output_filepath: str, percentile: int):
-    df = pd.read_csv(input_filepath)
-
-    result = []
-
-    for sector in Sectors:
-        if sector.value.abbreviation != "BS":
-            column = sector.value.abbreviation
-            result.append(
-                {
-                    "sector": column,
-                    "percentile-005": np.percentile(df[column], percentile),
-                }
-            )
-
-    fieldnames = list(result[0].keys())
-    with open(output_filepath, "w", encoding="UTF8") as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(result)
+def get_stats(sector: str, series: pd.Series, percentile: int = 5):
+    return {
+        "sector": sector,
+        "mean": series.mean(),
+        "std_dev": series.std(),
+        f"percentile-{percentile}": np.percentile(series, percentile),
+    }
 
 
 def get_all_averages_by_sector(input_filepath: str, output_filepath: str):
     df = pd.read_csv(input_filepath)
 
-    result = []
+    all_averages = [
+        get_stats(sector.abbreviation, df[sector.abbreviation])
+        for sector in SECTORS.values()
+        if sector.abbreviation != "BS"
+    ]
 
-    for sector in Sectors:
-        if sector.value.abbreviation != "BS":
-            result.append(
-                {
-                    "sector": sector.value.abbreviation,
-                    "mean": df[sector.value.abbreviation].mean(),
-                    "std_dev": df[sector.value.abbreviation].std(),
-                }
-            )
-
-    fieldnames = list(result[0].keys())
+    fieldnames = list(all_averages[0].keys())
     with open(output_filepath, "w", encoding="UTF8") as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(result)
+        writer.writerows(all_averages)
 
 
 def get_max_min(input_filepath: str):
@@ -128,11 +105,6 @@ if __name__ == "__main__":
     max_min = subparser.add_parser("max-min")
     max_min.add_argument("inputfile", type=str)
 
-    percentile = subparser.add_parser("percentile")
-    percentile.add_argument("inputfile", type=str)
-    percentile.add_argument("outputfile", type=str)
-    percentile.add_argument("percentile", type=int)
-
     args = parser.parse_args()
 
     if args.command == "average-by-sector":
@@ -140,9 +112,6 @@ if __name__ == "__main__":
 
     if args.command == "all-averages":
         get_all_averages_by_sector(args.inputfile, args.outputfile)
-
-    if args.command == "percentile":
-        get_percentile(args.inputfile, args.outputfile, args.percentile)
 
     if args.command == "max-min":
         get_max_min(args.inputfile)

@@ -5,29 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "get-all-averages",
+      "name": "average-by-sector",
       "type": "python",
       "request": "launch",
       "module": "visual_field_mapper",
       "justMyCode": true,
       "args": [
-        "all-averages",
-        "out/normal_averages.csv",
-        "out/normal_averages_all.csv"
+        "average-by-sector","data/normal.csv","out/normal_averages.csv"
       ]
     },
     {
-      "name": "get-percentile",
+      "name": "all-averages",
       "type": "python",
       "request": "launch",
       "module": "visual_field_mapper",
       "justMyCode": true,
-      "args": [
-        "percentile",
-        "out/normal_averages.csv",
-        "out/percentile.csv",
-        "5"
-      ]
+      "args": [ "all-averages", "out/normal_averages.csv", "out/normal_averages_all.csv" ]
     }
   ]
 }

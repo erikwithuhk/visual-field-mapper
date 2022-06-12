@@ -6,6 +6,7 @@ from colorama import Back, Style
 from .visual_field import Point, VisualField
 
 
+# TODO: Convert to NamedTuple
 class Sector:
     def __init__(self, name: str, abbreviation: str, print_color: str):
         self.name = name
@@ -16,26 +17,18 @@ class Sector:
     def __repr__(self) -> str:
         from pprint import pformat
 
-        return "Sector: " + pformat(vars(self))
-
-    def get_points(self):
-        return self.__points
-
-    def add_point(self, point: Point):
-        self.__points.append(point)
-
-    def get_average_total_deviation(self):
-        return mean([point.total_deviation for point in self.__points])
+        return pformat(vars(self))
 
 
-class Sectors(enum.Enum):
-    ST = Sector("Superotemporal", "ST", Style.DIM + Back.GREEN)
-    T = Sector("Temporal", "T", Style.DIM + Back.YELLOW)
-    IT = Sector("Inferotemporal", "IT", Back.BLUE)
-    IN = Sector("Inferonasal", "IN", Style.BRIGHT + Back.GREEN)
-    N = Sector("Nasal", "N", Style.BRIGHT + Back.YELLOW)
-    SN = Sector("Superonasal", "SN", Back.RED)
-    BS = Sector("Blind spot", "BS", Back.BLACK)
+SECTORS = {
+    "IN": Sector("Inferonasal", "IN", Style.BRIGHT + Back.GREEN),
+    "IT": Sector("Inferotemporal", "IT", Back.BLUE),
+    "T": Sector("Temporal", "T", Style.DIM + Back.YELLOW),
+    "N": Sector("Nasal", "N", Style.BRIGHT + Back.YELLOW),
+    "ST": Sector("Superotemporal", "ST", Style.DIM + Back.GREEN),
+    "SN": Sector("Superonasal", "SN", Back.RED),
+    "BS": Sector("Blind spot", "BS", Back.BLACK),
+}
 
 
 def get_sector(point: Point):
@@ -43,25 +36,25 @@ def get_sector(point: Point):
         return point.position >= start and point.position <= end
 
     if is_between(1, 5) or point.position in [10, 17]:
-        return Sectors.IN
+        return SECTORS["IN"]
 
     if is_between(6, 9) or is_between(11, 16) or is_between(19, 22):
-        return Sectors.IT
+        return SECTORS["IT"]
 
     if point.position in [18, 27, 36, 44]:
-        return Sectors.N
+        return SECTORS["N"]
 
     if is_between(23, 25) or is_between(32, 34):
-        return Sectors.T
+        return SECTORS["T"]
 
     if is_between(29, 31) or is_between(38, 42) or is_between(47, 48):
-        return Sectors.ST
+        return SECTORS["ST"]
 
     if point.position in [28, 37, 43] or is_between(45, 46) or is_between(49, 54):
-        return Sectors.SN
+        return SECTORS["SN"]
 
     if point.position in [26, 35]:
-        return Sectors.BS
+        return SECTORS["BS"]
 
     return None
 
@@ -71,19 +64,16 @@ class GarwayHeathSectorization:
         self.visual_field = visual_field
 
     def get_averages_by_sector(self):
+        tds_by_sector = {sector.abbreviation: [] for sector in SECTORS.values()}
+
         for point in self.visual_field.points:
-            sector = get_sector(point)
+            sector_name = get_sector(point).abbreviation
+            tds_by_sector[sector_name].append(point.total_deviation)
 
-            if sector != sector.BS:
-                sector.value.add_point(point)
-
-        points_by_sector = {
-            sector.value.abbreviation: sector.value.get_points() for sector in Sectors
-        }
         return {
-            sector.value.abbreviation: sector.value.get_average_total_deviation()
-            for sector in Sectors
-            if sector != Sectors.BS
+            sector: mean(points)
+            for sector, points in tds_by_sector.items()
+            if sector != "BS"
         }
 
     def __format_point(self, point: Point):
