@@ -4707,7 +4707,7 @@ def test_get_stats(data, expected_mean, expected_std_dev):
 def test_get_all_averages_by_sector(mocker):
     sector = "SN"
     dict_writer_mock = mocker.patch("csv.DictWriter")
-    get_all_averages_by_sector("out/normal_averages.csv", "out/normal_averages_all.csv")
+    get_all_averages_by_sector()
     dict_writer_call_data = dict_writer_mock().writerows.call_args.args
     for row in dict_writer_call_data[0]:
         if row["sector"] == sector:

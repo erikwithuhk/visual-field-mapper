@@ -11,7 +11,7 @@
       "module": "visual_field_mapper",
       "justMyCode": true,
       "args": [
-        "average-by-sector","data/normal.csv","out/normal_averages.csv"
+        "average-by-sector"
       ]
     },
     {
@@ -20,7 +20,15 @@
       "request": "launch",
       "module": "visual_field_mapper",
       "justMyCode": true,
-      "args": [ "all-averages", "out/normal_averages.csv", "out/normal_averages_all.csv" ]
+      "args": [ "all-averages"]
+    },
+    {
+      "name": "draw-heat-map",
+      "type": "python",
+      "request": "launch",
+      "module": "visual_field_mapper",
+      "justMyCode": true,
+      "args": [ "draw-heat-map" ]
     }
   ]
 }

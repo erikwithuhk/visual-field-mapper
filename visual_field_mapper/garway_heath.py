@@ -1,23 +1,15 @@
-import enum
 from statistics import mean
+from typing import Dict, List, NamedTuple
 
 from colorama import Back, Style
 
 from .visual_field import Point, VisualField
 
 
-# TODO: Convert to NamedTuple
-class Sector:
-    def __init__(self, name: str, abbreviation: str, print_color: str):
-        self.name = name
-        self.abbreviation = abbreviation
-        self.print_color = print_color
-        self.__points = []
-
-    def __repr__(self) -> str:
-        from pprint import pformat
-
-        return pformat(vars(self))
+class Sector(NamedTuple):
+    name: str
+    abbreviation: str
+    print_color: str
 
 
 SECTORS = {
@@ -76,57 +68,68 @@ class GarwayHeathSectorization:
             if sector != "BS"
         }
 
-    def __format_point(self, point: Point):
-        sector = get_sector(point)
-
-        total_deviation = str(point.total_deviation)
-
-        if point.total_deviation == None:
-            total_deviation = "   "
-        elif point.total_deviation >= 0 and point.total_deviation < 10:
-            total_deviation = f"  {total_deviation}"
-        elif point.total_deviation > -10:
-            total_deviation = f" {total_deviation}"
-
-        return f"{sector.value.print_color if sector.value else ''} {total_deviation} {Back.RESET}{Style.RESET_ALL}"
-
-    def __format_line(self, points: list[Point]):
-        empty = "     "
-
-        formatted_line = []
-        formatted_points = [self.__format_point(point) for point in points]
+    def create_row(self, points: List[Point]):
+        row = []
 
         if len(points) == 4:
-            formatted_line.extend([empty, empty, empty])
-            formatted_line.extend(formatted_points)
-            formatted_line.extend([empty, empty])
+            row.extend([None, None, None])
+            row.extend(points)
+            row.extend([None, None])
         elif len(points) == 6:
-            formatted_line.extend([empty, empty])
-            formatted_line.extend(formatted_points)
-            formatted_line.extend([empty])
+            row.extend([None, None])
+            row.extend(points)
+            row.extend([None])
         elif len(points) == 8:
-            formatted_line.append(empty)
-            formatted_line.extend(formatted_points)
+            row.append(None)
+            row.extend(points)
         elif len(points) == 9:
-            formatted_line = formatted_points
+            row = points
         else:
-            raise Exception(f"No formatting rule for line length <{len(points)}>.")
+            raise Exception(f"No rule for points length <{len(points)}>.")
 
-        return "".join(formatted_line)
+        return row
+
+    def to_matrix(self):
+        rows = [
+            self.create_row(points)
+            for points in [
+                self.visual_field.points[0:4],
+                self.visual_field.points[4:10],
+                self.visual_field.points[10:18],
+                self.visual_field.points[18:27],
+                self.visual_field.points[27:36],
+                self.visual_field.points[36:44],
+                self.visual_field.points[44:50],
+                self.visual_field.points[50:],
+            ]
+        ]
+        return rows
+
+    def draw_heat_map(self, means_by_sector: Dict[str, float]):
+        pass
+
+    def __format_point(self, point: Point):
+        sector = None
+        total_deviation = "   "
+
+        if point:
+            sector = get_sector(point)
+
+            total_deviation = str(point.total_deviation)
+
+            if point.total_deviation == None:
+                total_deviation = "   "
+            elif point.total_deviation >= 0 and point.total_deviation < 10:
+                total_deviation = f"  {total_deviation}"
+            elif point.total_deviation > -10:
+                total_deviation = f" {total_deviation}"
+
+        return f"{sector.print_color if sector else ''} {total_deviation} {Back.RESET}{Style.RESET_ALL}"
+
+    def __format_row(self, points: List[Point]):
+        return "".join([self.__format_point(point) for point in points])
 
     def __repr__(self):
-        def format_line(points):
-            return self.__format_line(points)
+        matrix = self.to_matrix()
 
-        line_1 = format_line(self.visual_field.points[0:4])
-        line_2 = format_line(self.visual_field.points[4:10])
-        line_3 = format_line(self.visual_field.points[10:18])
-        line_4 = format_line(self.visual_field.points[18:27])
-        line_5 = format_line(self.visual_field.points[27:36])
-        line_6 = format_line(self.visual_field.points[36:44])
-        line_7 = format_line(self.visual_field.points[44:50])
-        line_8 = format_line(self.visual_field.points[50:])
-
-        return "\n".join(
-            [line_1, line_2, line_3, line_4, line_5, line_6, line_7, line_8]
-        )
+        return "\n".join([self.__format_row(row) for row in matrix])
