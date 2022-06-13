@@ -1,6 +1,7 @@
 import argparse
 import csv
 import math
+import os
 from pathlib import Path
 
 import drawSvg as draw
@@ -17,6 +18,8 @@ BASE_DIR = Path(__file__).parent.parent.resolve()
 DATA_DIR = BASE_DIR.joinpath("data")
 OUT_DIR = BASE_DIR.joinpath("out")
 IMAGE_DIR = OUT_DIR.joinpath("images")
+SVG_DIR = IMAGE_DIR.joinpath("SVG")
+PNG_DIR = IMAGE_DIR.joinpath("PNG")
 
 NORMAL_DATA_FILEPATH = DATA_DIR.joinpath("normal.csv")
 STUDY_DATA_FILEPATH = DATA_DIR.joinpath("study.csv")
@@ -179,10 +182,13 @@ def draw_visual_field():
         svg.append(garway_heath_map)
 
         svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient_id}.svg")
-        # svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
+        svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
 
 
 if __name__ == "__main__":
+    os.makedirs(SVG_DIR, exist_ok=True)
+    os.makedirs(PNG_DIR, exist_ok=True)
+
     parser = argparse.ArgumentParser("visual_field_mapper")
     subparser = parser.add_subparsers(dest="command")
 
