@@ -47,6 +47,7 @@ class Point:
             dimensions.height,
             fill=fill.color,
             fill_opacity=fill.opacity,
+            stroke=2,
         )
 
 
@@ -80,6 +81,9 @@ class VisualField:
         else:
             raise Exception(f"No rule for points length <{len(points)}>.")
 
+        if self.eye == "OS":
+            row.reverse()
+
         return row
 
     def to_matrix(self) -> List[List[Point]]:
@@ -96,11 +100,75 @@ class VisualField:
                 self.points[50:],
             ]
         ]
+
         return rows
 
     def draw_outline(
         self, cell_dimensions: Dimensions, position: Position = None
     ) -> draw.Lines:
+        fill_opacity = 0
+        stroke = Colors.black.value
+        stroke_width = 4
+        transform = f"translate({position.x},{position.y})" if position else None
+
+        if self.eye == "OS":
+            return draw.Lines(
+                2 * cell_dimensions.width,
+                0 * -cell_dimensions.height,
+                6 * cell_dimensions.width,
+                0 * -cell_dimensions.height,
+                6 * cell_dimensions.width,
+                1 * -cell_dimensions.height,
+                7 * cell_dimensions.width,
+                1 * -cell_dimensions.height,
+                7 * cell_dimensions.width,
+                2 * -cell_dimensions.height,
+                8 * cell_dimensions.width,
+                2 * -cell_dimensions.height,
+                8 * cell_dimensions.width,
+                3 * -cell_dimensions.height,
+                9 * cell_dimensions.width,
+                3 * -cell_dimensions.height,
+                9 * cell_dimensions.width,
+                5 * -cell_dimensions.height,
+                8 * cell_dimensions.width,
+                5 * -cell_dimensions.height,
+                8 * cell_dimensions.width,
+                6 * -cell_dimensions.height,
+                7 * cell_dimensions.width,
+                6 * -cell_dimensions.height,
+                7 * cell_dimensions.width,
+                7 * -cell_dimensions.height,
+                6 * cell_dimensions.width,
+                7 * -cell_dimensions.height,
+                6 * cell_dimensions.width,
+                8 * -cell_dimensions.height,
+                2 * cell_dimensions.width,
+                8 * -cell_dimensions.height,
+                2 * cell_dimensions.width,
+                7 * -cell_dimensions.height,
+                1 * cell_dimensions.width,
+                7 * -cell_dimensions.height,
+                1 * cell_dimensions.width,
+                6 * -cell_dimensions.height,
+                0 * cell_dimensions.width,
+                6 * -cell_dimensions.height,
+                0 * cell_dimensions.width,
+                2 * -cell_dimensions.height,
+                1 * cell_dimensions.width,
+                2 * -cell_dimensions.height,
+                1 * cell_dimensions.width,
+                1 * -cell_dimensions.height,
+                2 * cell_dimensions.width,
+                1 * -cell_dimensions.height,
+                2 * cell_dimensions.width,
+                0 * -cell_dimensions.height,
+                fill_opacity=fill_opacity,
+                stroke=stroke,
+                stroke_width=stroke_width,
+                transform=transform,
+            )
+
         return draw.Lines(
             3 * cell_dimensions.width,
             0 * -cell_dimensions.height,
@@ -152,10 +220,10 @@ class VisualField:
             1 * -cell_dimensions.height,
             3 * cell_dimensions.width,
             0 * -cell_dimensions.height,
-            fill_opacity=0,
-            stroke=Colors.black.value,
-            stroke_width=4,
-            transform=f"translate({position.x},{position.y})" if position else None,
+            fill_opacity=fill_opacity,
+            stroke=stroke,
+            stroke_width=stroke_width,
+            transform=transform,
         )
 
     def __draw_row(
