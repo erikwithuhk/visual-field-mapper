@@ -37,10 +37,10 @@ class Point:
         else:
             return Fill(Colors.white.value, 0.0)
 
-    def draw(self, dimensions: Dimensions, position: Position):
+    def draw(self, dimensions: Dimensions, position: Position) -> draw.Group:
         fill = self.__get_fill()
 
-        return draw.Rectangle(
+        rect = draw.Rectangle(
             position.x,
             position.y,
             dimensions.width,
@@ -48,6 +48,14 @@ class Point:
             fill=fill.color,
             fill_opacity=fill.opacity,
         )
+
+        dot = draw.Circle(
+            position.x + dimensions.width / 2,
+            position.y + dimensions.height / 2,
+            3,
+            fill=Colors.black.value,
+        )
+        return draw.Group([rect, dot])
 
 
 class VisualField:
