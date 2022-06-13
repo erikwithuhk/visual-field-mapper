@@ -123,7 +123,7 @@ class GarwayHeathSectorization:
         self, cell_dimensions: Dimensions, position: Position
     ) -> draw.Group:
         fill = Colors.red.value
-        stroke = Colors.white.value
+        stroke = Colors.gray.value
         stroke_width = 5
 
         in_sector = draw.Lines(

@@ -10,6 +10,7 @@ __version__ = "0.0.1"
 
 class Colors(Enum):
     black = "#000"
+    gray = "#ddd"
     blue = "#386cb0"
     green = "#7fc97f"
     orange = "#fdc086"
