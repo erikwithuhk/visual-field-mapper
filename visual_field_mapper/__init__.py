@@ -15,7 +15,7 @@ class Colors(Enum):
     orange = "#fdc086"
     pink = "#f0027f"
     purple = "#beaed4"
-    red = "#ff0000"
+    red = "#be1e2d"
     white = "#fff"
     yellow = "#ffff99"
 

@@ -112,7 +112,7 @@ def draw_visual_field():
         row["sector"]: row["percentile_5"] for _, row in df.iterrows()
     }
 
-    cell_dimensions = Dimensions(75, 50)
+    cell_dimensions = Dimensions(50, 50)
     drawing_dimensions = Dimensions(
         9 * cell_dimensions.width, 8 * cell_dimensions.height
     )
@@ -179,7 +179,7 @@ def draw_visual_field():
         svg.append(garway_heath_map)
 
         svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient_id}.svg")
-        svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
+        # svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
 
 
 if __name__ == "__main__":

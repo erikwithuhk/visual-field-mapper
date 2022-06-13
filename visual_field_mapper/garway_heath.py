@@ -101,32 +101,202 @@ class GarwayHeathSectorization:
 
         return "\n".join([self.__format_row(row) for row in matrix])
 
-    def __draw_point(
-        self, point: Point, dimensions: Dimensions, position: Position
-    ) -> draw.Rectangle:
+    def __draw_point(self, dimensions: Dimensions, position: Position) -> draw.Circle:
+        return draw.Circle(
+            position.x + dimensions.width / 2,
+            position.y + dimensions.height / 2,
+            3,
+            fill=Colors.black.value,
+        )
 
-        fill = None
+    def __get_fill_opacity(self, sector):
         fill_opacity = 0.0
 
-        if point.is_blind_spot():
-            fill = Colors.black.value
-            fill_opacity = 1.0
-        else:
-            sector = get_sector(point)
-            fill = Colors.red.value
-            sector_limit = self.__limits_by_sector[sector.abbreviation]
-            sector_mean = self.get_means_by_sector()[sector.abbreviation]
+        sector_limit = self.__limits_by_sector[sector.abbreviation]
+        sector_mean = self.get_means_by_sector()[sector.abbreviation]
+        if sector_mean < sector_limit:
+            fill_opacity = sector_mean / (-35 - sector_limit)
 
-            if sector_mean < sector_limit:
-                fill_opacity = sector_mean / (-35 - sector_limit)
+        return fill_opacity
 
-        return draw.Rectangle(
-            position.x,
-            position.y,
-            dimensions.width,
-            dimensions.height,
+    def __draw_sectors(
+        self, cell_dimensions: Dimensions, position: Position
+    ) -> draw.Group:
+        fill = Colors.red.value
+        stroke = Colors.white.value
+        stroke_width = 5
+
+        in_sector = draw.Lines(
+            0,
+            0,
+            2 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            6 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            7 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            7 * cell_dimensions.width,
+            -1 * cell_dimensions.height,
+            6 * cell_dimensions.width,
+            -1 * cell_dimensions.height,
+            6 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            2 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            2 * cell_dimensions.width,
+            0 * cell_dimensions.height,
+            close=True,
             fill=fill,
-            fill_opacity=fill_opacity,
+            fill_opacity=self.__get_fill_opacity(SECTORS["IN"]),
+            stroke=stroke,
+            stroke_width=stroke_width,
+            transform=f"translate({1 * cell_dimensions.width},{2 * cell_dimensions.height})",
+        )
+
+        it_sector = draw.Lines(
+            0,
+            0,
+            0 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            1 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            7 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            7 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            4 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            4 * cell_dimensions.width,
+            0 * cell_dimensions.height,
+            0 * cell_dimensions.width,
+            0 * cell_dimensions.height,
+            close=True,
+            fill=fill,
+            fill_opacity=self.__get_fill_opacity(SECTORS["IT"]),
+            stroke=stroke,
+            stroke_width=stroke_width,
+            transform=f"translate(0,{4 * cell_dimensions.height})",
+        )
+
+        t_sector = draw.Rectangle(
+            4 * cell_dimensions.width,
+            5 * -cell_dimensions.height,
+            3 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            fill=fill,
+            fill_opacity=self.__get_fill_opacity(SECTORS["T"]),
+            stroke=stroke,
+            stroke_width=stroke_width,
+        )
+
+        n_sector = draw.Lines(
+            0,
+            0,
+            0 * cell_dimensions.width,
+            6 * cell_dimensions.height,
+            1 * cell_dimensions.width,
+            5 * cell_dimensions.height,
+            1 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            close=True,
+            fill=fill,
+            fill_opacity=self.__get_fill_opacity(SECTORS["N"]),
+            stroke=stroke,
+            stroke_width=stroke_width,
+            transform=f"translate({8 * cell_dimensions.width},{7 * cell_dimensions.height})",
+        )
+
+        st_sector = draw.Lines(
+            0,
+            0,
+            0 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            0 * cell_dimensions.height,
+            6 * cell_dimensions.width,
+            0 * cell_dimensions.height,
+            6 * cell_dimensions.width,
+            -1 * cell_dimensions.height,
+            5 * cell_dimensions.width,
+            -1 * cell_dimensions.height,
+            5 * cell_dimensions.width,
+            -2 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            -2 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            -1 * cell_dimensions.height,
+            1 * cell_dimensions.width,
+            -1 * cell_dimensions.height,
+            1 * cell_dimensions.width,
+            0 * cell_dimensions.height,
+            0 * cell_dimensions.width,
+            0 * cell_dimensions.height,
+            close=True,
+            fill=fill,
+            fill_opacity=self.__get_fill_opacity(SECTORS["ST"]),
+            stroke=stroke,
+            stroke_width=stroke_width,
+            transform=f"translate({1 * cell_dimensions.width},{5 * cell_dimensions.height})",
+        )
+
+        sn_sector = draw.Lines(
+            0,
+            0,
+            -3 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            -3 * cell_dimensions.width,
+            4 * cell_dimensions.height,
+            -2 * cell_dimensions.width,
+            4 * cell_dimensions.height,
+            -2 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            -1 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            -1 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            1 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            1 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            4 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            4 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            5 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            5 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            4 * cell_dimensions.width,
+            0 * cell_dimensions.height,
+            close=True,
+            fill=fill,
+            fill_opacity=self.__get_fill_opacity(SECTORS["SN"]),
+            stroke=stroke,
+            stroke_width=stroke_width,
+            transform=f"translate({3 * cell_dimensions.width},{8 * cell_dimensions.height})",
+        )
+
+        blind_spot = draw.Rectangle(
+            7 * cell_dimensions.width,
+            5 * -cell_dimensions.height,
+            1 * cell_dimensions.width,
+            2 * cell_dimensions.height,
+            fill=Colors.black.value,
+            stroke=stroke,
+            stroke_width=stroke_width,
+        )
+        return draw.Group(
+            [in_sector, it_sector, t_sector, n_sector, st_sector, sn_sector, blind_spot]
         )
 
     def __draw_row(
@@ -138,7 +308,6 @@ class GarwayHeathSectorization:
         return draw.Group(
             [
                 self.__draw_point(
-                    point,
                     cell_dimensions,
                     Position(i * cell_dimensions.width, -cell_dimensions.height),
                 )
@@ -153,15 +322,19 @@ class GarwayHeathSectorization:
     ) -> draw.Group:
         self.__limits_by_sector = limits_by_sector
         matrix = self.visual_field.to_matrix()
-        rows = [
-            self.__draw_row(
-                row, cell_dimensions, Position(0, i * cell_dimensions.height)
-            )
-            for i, row in enumerate(matrix)
-        ]
-        outline = self.visual_field.draw_outline(cell_dimensions)
-        rows.append(outline)
+        children = []
+        children.append(self.__draw_sectors(cell_dimensions, position))
+        children.extend(
+            [
+                self.__draw_row(
+                    row, cell_dimensions, Position(0, i * cell_dimensions.height)
+                )
+                for i, row in enumerate(matrix)
+            ]
+        )
+        # outline = self.visual_field.draw_outline(cell_dimensions)
+        # children.append(outline)
         return draw.Group(
-            rows,
+            children,
             transform=f"translate({position.x},{position.y})" if position else None,
         )
