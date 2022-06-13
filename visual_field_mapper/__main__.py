@@ -33,11 +33,7 @@ def get_average_by_sector(input_file: str, output_file: str):
     scans = file_reader.read_csv(input_file)
     for scan in scans:
         patient_id = int(scan["PtID"])
-        eye = None
-        try:
-            eye = scan["Affected_Eye"]
-        except:
-            eye = scan["EYE"]
+        eye = scan["Eye"]
 
         points = []
         for i in range(1, 55):
@@ -126,7 +122,7 @@ def draw_visual_field():
     df = pd.read_csv(STUDY_DATA_FILEPATH)
     for i, row in df.iterrows():
         patient_id = row["PtID"]
-        affected_eye = row["Affected_Eye"]
+        eye = row["Eye"]
 
         points = []
         for i in range(1, 55):
@@ -167,7 +163,7 @@ def draw_visual_field():
 
         position_y = title_height + margin * 2
 
-        visual_field = VisualField(patient_id, affected_eye, points)
+        visual_field = VisualField(patient_id, eye, points)
         visual_field_position = Position(margin, position_y)
         visual_field_map = visual_field.draw(cell_dimensions, visual_field_position)
         svg.append(visual_field_map)

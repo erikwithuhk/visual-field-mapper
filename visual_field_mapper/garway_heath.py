@@ -113,7 +113,7 @@ class GarwayHeathSectorization:
             fill_opacity = 1.0
         else:
             sector = get_sector(point)
-            fill = sector.color.value
+            fill = Colors.red.value
             sector_limit = self.__limits_by_sector[sector.abbreviation]
             sector_mean = self.get_means_by_sector()[sector.abbreviation]
 
