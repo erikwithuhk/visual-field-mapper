@@ -344,6 +344,88 @@ class GarwayHeathSectorization:
             transform=f"translate({position.x},{position.y})" if position else None,
         )
 
+    def draw_table(self, table_width: int, position: Position = None):
+
+        font_size = 16
+
+        text_formatting = {
+            "font_family": "Arial,Helvetica",
+            "valign": "middle",
+            "text_anchor": "middle",
+        }
+
+        row_height = 24
+        col_1_width = 75
+        col_2_width = 115
+        margin = 10
+
+        col_2_start = col_1_width + margin
+
+        col_1_text_x = margin + col_1_width / 2
+        col_2_text_x = col_2_start + col_2_width / 2
+
+        def draw_row(sector_name: str, mean: float, position: Position):
+            sector_text = draw.Text(
+                sector_name, font_size, col_1_text_x, 0, **text_formatting
+            )
+            mean_text = draw.Text(
+                "{:.2f}".format(round(mean, 2)),
+                font_size,
+                col_2_text_x,
+                0,
+                **text_formatting,
+            )
+
+            return draw.Group(
+                [sector_text, mean_text], transform=f"translate(0,{position.y})"
+            )
+
+        sector_header = draw.Text(
+            "Sector", font_size, col_1_text_x, 0, **text_formatting, font_weight="bold"
+        )
+        mean_header = draw.Text(
+            "Average TD",
+            font_size,
+            col_2_text_x,
+            0,
+            **text_formatting,
+            font_weight="bold",
+        )
+        children = [sector_header, mean_header]
+        divider_x = col_1_width + margin
+        children.append(
+            draw.Line(
+                divider_x,
+                row_height * 0.5,
+                divider_x,
+                row_height * -6.5,
+                stroke=Colors.black.value,
+                stroke_width=2,
+            )
+        )
+        children.append(
+            draw.Line(
+                0,
+                -12,
+                col_2_start + col_2_width,
+                -12,
+                stroke=Colors.black.value,
+                stroke_width=2,
+            )
+        )
+        means_by_sector = self.get_means_by_sector()
+        children.extend(
+            [
+                draw_row(sector, mean, Position(0, row_height * (i + 1)))
+                for i, (sector, mean) in enumerate(means_by_sector.items())
+            ]
+        )
+
+        return draw.Group(
+            children,
+            transform=f"translate({position.x},{position.y})" if position else None,
+        )
+
     def draw(
         self, limits_by_sector, cell_dimensions: Dimensions, position: Position = None
     ) -> draw.Group:

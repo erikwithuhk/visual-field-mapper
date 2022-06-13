@@ -134,8 +134,9 @@ def draw_visual_field():
             else:
                 points.append(Point(i, int(row[f"td{i}"])))
 
+        table_width = 200
         svg_dimensions = Dimensions(
-            drawing_dimensions.width * 2 + margin * 3,
+            drawing_dimensions.width * 2 + table_width + margin * 4,
             title_height + drawing_dimensions.height + margin * 3,
         )
         svg = draw.Drawing(
@@ -159,8 +160,9 @@ def draw_visual_field():
             x="50%",
             y=-margin,
             height=title_height,
-            font_family="Arial",
+            font_family="Arial,Helvetica",
             center=True,
+            font_weight="bold",
         )
         svg.append(title)
 
@@ -180,6 +182,17 @@ def draw_visual_field():
             percentiles_5_by_sector, cell_dimensions, garway_heath_position
         )
         svg.append(garway_heath_map)
+
+        garway_heath_table = garway_heath.draw_table(
+            table_width,
+            Position(
+                garway_heath_position.x + drawing_dimensions.width + margin,
+                position_y + drawing_dimensions.height / 2 - 24 * 3.5,
+            ),
+        )
+        svg.append(
+            garway_heath_table,
+        )
 
         svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient_id}.svg")
         svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
