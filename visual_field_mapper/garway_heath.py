@@ -138,7 +138,9 @@ class GarwayHeathSectorization:
         return draw.Group(
             [
                 self.__draw_point(
-                    point, cell_dimensions, Position(i * cell_dimensions.width, -100)
+                    point,
+                    cell_dimensions,
+                    Position(i * cell_dimensions.width, -cell_dimensions.height),
                 )
                 for i, point in enumerate(points)
                 if point

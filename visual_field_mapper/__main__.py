@@ -7,7 +7,7 @@ import drawSvg as draw
 import numpy as np
 import pandas as pd
 
-from visual_field_mapper import Dimensions, Position
+from visual_field_mapper import Colors, Dimensions, Position
 
 from .file_reader import FileReader
 from .garway_heath import SECTORS, GarwayHeathSectorization
@@ -116,7 +116,12 @@ def draw_visual_field():
         row["sector"]: row["percentile_5"] for _, row in df.iterrows()
     }
 
-    margin = 100
+    cell_dimensions = Dimensions(75, 50)
+    drawing_dimensions = Dimensions(
+        9 * cell_dimensions.width, 8 * cell_dimensions.height
+    )
+    margin = cell_dimensions.height
+    title_height = cell_dimensions.height / 2
 
     df = pd.read_csv(STUDY_DATA_FILEPATH)
     for i, row in df.iterrows():
@@ -130,11 +135,6 @@ def draw_visual_field():
             else:
                 points.append(Point(i, int(row[f"td{i}"])))
 
-        title_height = 50
-        cell_dimensions = Dimensions(150, 100)
-        drawing_dimensions = Dimensions(
-            9 * cell_dimensions.width, 8 * cell_dimensions.height
-        )
         svg_dimensions = Dimensions(
             drawing_dimensions.width * 2 + margin * 3,
             title_height + drawing_dimensions.height + margin * 3,
@@ -145,10 +145,18 @@ def draw_visual_field():
             origin=(0, -svg_dimensions.height),
             displayInline=False,
         )
+        background = draw.Rectangle(
+            0,
+            -svg_dimensions.height,
+            svg_dimensions.width,
+            svg_dimensions.height,
+            fill=Colors.white.value,
+        )
+        svg.append(background)
 
         title = draw.Text(
             f"Patient #{patient_id}",
-            16 * 4,
+            16 * 2,
             x="50%",
             y=-margin,
             height=title_height,
@@ -174,7 +182,8 @@ def draw_visual_field():
         )
         svg.append(garway_heath_map)
 
-        svg.saveSvg(f"{IMAGE_DIR}/{patient_id}.svg")
+        svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient_id}.svg")
+        svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
 
 
 if __name__ == "__main__":

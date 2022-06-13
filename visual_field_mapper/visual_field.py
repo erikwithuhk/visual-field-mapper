@@ -47,7 +47,6 @@ class Point:
             dimensions.height,
             fill=fill.color,
             fill_opacity=fill.opacity,
-            stroke=2,
         )
 
 
@@ -231,7 +230,10 @@ class VisualField:
     ) -> draw.Group:
         return draw.Group(
             [
-                point.draw(cell_dimensions, Position(i * cell_dimensions.width, -100))
+                point.draw(
+                    cell_dimensions,
+                    Position(i * cell_dimensions.width, -cell_dimensions.height),
+                )
                 for i, point in enumerate(points)
                 if point
             ],
