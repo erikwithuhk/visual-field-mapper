@@ -1,4 +1,3 @@
-from importlib.metadata import entry_points
 from setuptools import setup
 
 test_requirements = ["faker>=13.13.0", "pytest>=7.1.2", "pytest-mock>=3.7.0"]
