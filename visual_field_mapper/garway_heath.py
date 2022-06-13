@@ -317,6 +317,33 @@ class GarwayHeathSectorization:
             transform=f"translate({position.x},{position.y})" if position else None,
         )
 
+    def __draw_outline(
+        self, cell_dimensions: Dimensions, position: Position = None
+    ) -> draw.Lines:
+        return draw.Lines(
+            0,
+            0,
+            3 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            7 * cell_dimensions.width,
+            3 * cell_dimensions.height,
+            9 * cell_dimensions.width,
+            1 * cell_dimensions.height,
+            9 * cell_dimensions.width,
+            -3 * cell_dimensions.height,
+            7 * cell_dimensions.width,
+            -5 * cell_dimensions.height,
+            3 * cell_dimensions.width,
+            -5 * cell_dimensions.height,
+            0 * cell_dimensions.width,
+            -2 * cell_dimensions.height,
+            close=True,
+            fill_opacity=0.0,
+            stroke=Colors.black.value,
+            stroke_width=4,
+            transform=f"translate({position.x},{position.y})" if position else None,
+        )
+
     def draw(
         self, limits_by_sector, cell_dimensions: Dimensions, position: Position = None
     ) -> draw.Group:
@@ -332,8 +359,10 @@ class GarwayHeathSectorization:
                 for i, row in enumerate(matrix)
             ]
         )
-        # outline = self.visual_field.draw_outline(cell_dimensions)
-        # children.append(outline)
+        outline = self.__draw_outline(
+            cell_dimensions, Position(0, 3 * cell_dimensions.height)
+        )
+        children.append(outline)
         return draw.Group(
             children,
             transform=f"translate({position.x},{position.y})" if position else None,
