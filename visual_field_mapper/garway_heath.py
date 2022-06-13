@@ -1,26 +1,29 @@
 from statistics import mean
-from typing import Dict, List, NamedTuple
+from typing import List, NamedTuple
 
-import drawSvg
+import drawSvg as draw
 from colorama import Back, Style
 
-from .visual_field import Point, VisualField
+from visual_field_mapper import Dimensions, Position
+
+from .visual_field import Colors, Point, VisualField
 
 
 class Sector(NamedTuple):
     name: str
     abbreviation: str
+    color: str
     print_color: str
 
 
 SECTORS = {
-    "IN": Sector("Inferonasal", "IN", Style.BRIGHT + Back.GREEN),
-    "IT": Sector("Inferotemporal", "IT", Back.BLUE),
-    "T": Sector("Temporal", "T", Style.DIM + Back.YELLOW),
-    "N": Sector("Nasal", "N", Style.BRIGHT + Back.YELLOW),
-    "ST": Sector("Superotemporal", "ST", Style.DIM + Back.GREEN),
-    "SN": Sector("Superonasal", "SN", Back.RED),
-    "BS": Sector("Blind spot", "BS", Back.BLACK),
+    "IN": Sector("Inferonasal", "IN", Colors.green, Style.BRIGHT + Back.GREEN),
+    "IT": Sector("Inferotemporal", "IT", Colors.purple, Back.BLUE),
+    "T": Sector("Temporal", "T", Colors.orange, Style.DIM + Back.YELLOW),
+    "N": Sector("Nasal", "N", Colors.yellow, Style.BRIGHT + Back.YELLOW),
+    "ST": Sector("Superotemporal", "ST", Colors.blue, Style.DIM + Back.GREEN),
+    "SN": Sector("Superonasal", "SN", Colors.pink, Back.RED),
+    "BS": Sector("Blind spot", "BS", Colors.black, Back.BLACK),
 }
 
 
@@ -54,9 +57,12 @@ def get_sector(point: Point):
 
 class GarwayHeathSectorization:
     def __init__(self, visual_field: VisualField):
+        self.__limits_by_sector = {
+            sector: 0 for sector in SECTORS.keys() if sector != "BS"
+        }
         self.visual_field = visual_field
 
-    def get_averages_by_sector(self):
+    def get_means_by_sector(self):
         tds_by_sector = {sector.abbreviation: [] for sector in SECTORS.values()}
 
         for point in self.visual_field.points:
@@ -68,159 +74,6 @@ class GarwayHeathSectorization:
             for sector, points in tds_by_sector.items()
             if sector != "BS"
         }
-
-    def create_row(self, points: List[Point]):
-        row = []
-
-        if len(points) == 4:
-            row.extend([None, None, None])
-            row.extend(points)
-            row.extend([None, None])
-        elif len(points) == 6:
-            row.extend([None, None])
-            row.extend(points)
-            row.extend([None])
-        elif len(points) == 8:
-            row.append(None)
-            row.extend(points)
-        elif len(points) == 9:
-            row = points
-        else:
-            raise Exception(f"No rule for points length <{len(points)}>.")
-
-        return row
-
-    def to_matrix(self):
-        rows = [
-            self.create_row(points)
-            for points in [
-                self.visual_field.points[0:4],
-                self.visual_field.points[4:10],
-                self.visual_field.points[10:18],
-                self.visual_field.points[18:27],
-                self.visual_field.points[27:36],
-                self.visual_field.points[36:44],
-                self.visual_field.points[44:50],
-                self.visual_field.points[50:],
-            ]
-        ]
-        return rows
-
-    def draw_heat_map(self, means_by_sector: Dict[str, float]) -> drawSvg.Drawing:
-        matrix = self.to_matrix()
-        rect_size = 100
-        width = 11 * rect_size
-        height = 10 * rect_size
-        svg = drawSvg.Drawing(width, height, origin=(0, -height), displayInline=False)
-
-        starting_x = 1 * rect_size
-        starting_y = -2 * rect_size
-
-        x = starting_x
-        y = starting_y
-
-        def draw_cell(point: Point):
-            nonlocal x
-            nonlocal y
-
-            if point:
-                sector = get_sector(point)
-
-                fill = "black"
-                fill_opacity = 1.0
-
-                if sector.abbreviation != "BS":
-                    fill = "white"
-                    fill_opacity = 1.0
-
-                    mean = means_by_sector[sector.abbreviation]
-
-                    if point.total_deviation < mean:
-                        fill = "red"
-                        fill_opacity = (point.total_deviation - mean) / (-35 - mean)
-
-                rect = drawSvg.Rectangle(
-                    x,
-                    y,
-                    rect_size,
-                    rect_size,
-                    fill=fill,
-                    fill_opacity=fill_opacity,
-                )
-                svg.append(rect)
-
-            x += rect_size
-
-        def draw_row(points):
-            nonlocal x
-            nonlocal y
-            x = starting_x
-            row = [draw_cell(point) for point in points]
-            y -= rect_size
-            return row
-
-        [draw_row(row) for row in matrix]
-        outline = drawSvg.Lines(
-            starting_x + 3 * rect_size,
-            starting_y + 1 * rect_size,
-            starting_x + 7 * rect_size,
-            starting_y + 1 * rect_size,
-            starting_x + 7 * rect_size,
-            starting_y + 1 * rect_size,
-            starting_x + 7 * rect_size,
-            starting_y + 0 * rect_size,
-            starting_x + 8 * rect_size,
-            starting_y + 0 * rect_size,
-            starting_x + 8 * rect_size,
-            starting_y + -1 * rect_size,
-            starting_x + 9 * rect_size,
-            starting_y + -1 * rect_size,
-            starting_x + 9 * rect_size,
-            starting_y + -5 * rect_size,
-            starting_x + 8 * rect_size,
-            starting_y + -5 * rect_size,
-            starting_x + 8 * rect_size,
-            starting_y + -6 * rect_size,
-            starting_x + 7 * rect_size,
-            starting_y + -6 * rect_size,
-            starting_x + 7 * rect_size,
-            starting_y + -7 * rect_size,
-            starting_x + 3 * rect_size,
-            starting_y + -7 * rect_size,
-            starting_x + 3 * rect_size,
-            starting_y + -6 * rect_size,
-            starting_x + 2 * rect_size,
-            starting_y + -6 * rect_size,
-            starting_x + 2 * rect_size,
-            starting_y + -5 * rect_size,
-            starting_x + 1 * rect_size,
-            starting_y + -5 * rect_size,
-            starting_x + 1 * rect_size,
-            starting_y + -4 * rect_size,
-            starting_x + 0 * rect_size,
-            starting_y + -4 * rect_size,
-            starting_x + 0 * rect_size,
-            starting_y + -2 * rect_size,
-            starting_x + 1 * rect_size,
-            starting_y + -2 * rect_size,
-            starting_x + 1 * rect_size,
-            starting_y + -1 * rect_size,
-            starting_x + 2 * rect_size,
-            starting_y + -1 * rect_size,
-            starting_x + 2 * rect_size,
-            starting_y + 0 * rect_size,
-            starting_x + 3 * rect_size,
-            starting_y + 0 * rect_size,
-            starting_x + 3 * rect_size,
-            starting_y + 1 * rect_size,
-            fill_opacity=0,
-            stroke="black",
-            stroke_width=4,
-        )
-        svg.append(outline)
-        t = drawSvg.Text(str(self.visual_field.patient_id), 16, x=0, y=y)
-        svg.append(t)
-        return svg
 
     def __format_point(self, point: Point):
         sector = None
@@ -247,3 +100,66 @@ class GarwayHeathSectorization:
         matrix = self.to_matrix()
 
         return "\n".join([self.__format_row(row) for row in matrix])
+
+    def __draw_point(
+        self, point: Point, dimensions: Dimensions, position: Position
+    ) -> draw.Rectangle:
+
+        fill = None
+        fill_opacity = 0.0
+
+        if point.is_blind_spot():
+            fill = Colors.black.value
+            fill_opacity = 1.0
+        else:
+            sector = get_sector(point)
+            fill = sector.color.value
+            sector_limit = self.__limits_by_sector[sector.abbreviation]
+            sector_mean = self.get_means_by_sector()[sector.abbreviation]
+
+            if sector_mean < sector_limit:
+                fill_opacity = sector_mean / (-35 - sector_limit)
+
+        return draw.Rectangle(
+            position.x,
+            position.y,
+            dimensions.width,
+            dimensions.height,
+            fill=fill,
+            fill_opacity=fill_opacity,
+        )
+
+    def __draw_row(
+        self,
+        points: List[Point],
+        cell_dimensions: Dimensions,
+        position: Position = None,
+    ) -> draw.Group:
+        return draw.Group(
+            [
+                self.__draw_point(
+                    point, cell_dimensions, Position(i * cell_dimensions.width, -100)
+                )
+                for i, point in enumerate(points)
+                if point
+            ],
+            transform=f"translate({position.x},{position.y})" if position else None,
+        )
+
+    def draw(
+        self, limits_by_sector, cell_dimensions: Dimensions, position: Position = None
+    ) -> draw.Group:
+        self.__limits_by_sector = limits_by_sector
+        matrix = self.visual_field.to_matrix()
+        rows = [
+            self.__draw_row(
+                row, cell_dimensions, Position(0, i * cell_dimensions.height)
+            )
+            for i, row in enumerate(matrix)
+        ]
+        outline = self.visual_field.draw_outline(cell_dimensions)
+        rows.append(outline)
+        return draw.Group(
+            rows,
+            transform=f"translate({position.x},{position.y})" if position else None,
+        )

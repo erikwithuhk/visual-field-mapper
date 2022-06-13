@@ -5,13 +5,27 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "average-by-sector",
+      "name": "average-by-sector:normal",
       "type": "python",
       "request": "launch",
       "module": "visual_field_mapper",
       "justMyCode": true,
       "args": [
-        "average-by-sector"
+        "average-by-sector",
+        "data/normal.csv",
+        "out/normal_mean_td_by_sector.csv"
+      ]
+    },
+    {
+      "name": "average-by-sector:study",
+      "type": "python",
+      "request": "launch",
+      "module": "visual_field_mapper",
+      "justMyCode": true,
+      "args": [
+        "average-by-sector",
+        "data/study.csv",
+        "out/study_mean_td_by_sector.csv"
       ]
     },
     {
@@ -23,12 +37,12 @@
       "args": [ "all-averages"]
     },
     {
-      "name": "draw-heat-map",
+      "name": "draw",
       "type": "python",
       "request": "launch",
       "module": "visual_field_mapper",
       "justMyCode": true,
-      "args": [ "draw-heat-map" ]
+      "args": [ "draw" ]
     }
   ]
 }

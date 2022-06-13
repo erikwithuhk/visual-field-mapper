@@ -347,11 +347,11 @@ def test_get_sector(position, expected_sector):
         ),
     ],
 )
-def test_get_averages_by_sector(tds, expected):
+def test_get_means_by_sector(tds, expected):
     points = [Point(i + 1, td) for i, td in enumerate(tds)]
-    visual_field = VisualField(points)
+    visual_field = VisualField(1, "OD", points)
     garway_heath = GarwayHeathSectorization(visual_field)
-    actual = garway_heath.get_averages_by_sector()
+    actual = garway_heath.get_means_by_sector()
     assert round(actual["IN"], 4) == round(expected["IN"], 4)
     assert round(actual["IT"], 4) == round(expected["IT"], 4)
     assert round(actual["T"], 4) == round(expected["T"], 4)

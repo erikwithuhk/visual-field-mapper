@@ -11,5 +11,9 @@ def test_point_constructor(total_deviations):
 
 
 def test_visual_field_construtctor(points):
-    visual_field = VisualField(points)
+    patient_id = "patient_id"
+    eye = "OD"
+    visual_field = VisualField(patient_id, eye, points)
+    assert visual_field.patient_id == patient_id
+    assert visual_field.eye == eye
     assert visual_field.points == points
