@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Point:
     def __init__(self, position: int, total_deviation: int):
         if position < 1 or position > 54:
@@ -15,7 +18,8 @@ class Point:
 
 
 class VisualField:
-    def __init__(self, points: list[Point]):
+    def __init__(self, patient_id: str, points: List[Point]):
+        self.patient_id = patient_id
         self.points = points
 
     def __repr__(self) -> str:

@@ -5,7 +5,7 @@ test_requirements = ["faker>=13.13.0", "pytest>=7.1.2", "pytest-mock>=3.7.0"]
 
 dev_requirements = [*test_requirements, "black>=22.3.0"]
 
-requirements = ["colorama>=0.4.4", "pandas>=1.4.2", "svgwrite>=1.4.2"]
+requirements = ["colorama>=0.4.4", "pandas>=1.4.2", "drawSvg>=1.8.3"]
 
 extra_requirements = {"dev": dev_requirements}
 

@@ -10,9 +10,10 @@ from .file_reader import FileReader
 from .garway_heath import GarwayHeathSectorization, SECTORS
 from .visual_field import Point, VisualField
 
-BASE_DIR = Path(__file__).parent.resolve()
-DATA_DIR = BASE_DIR.parent.joinpath("data")
-OUT_DIR = BASE_DIR.parent.joinpath("out")
+BASE_DIR = Path(__file__).parent.parent.resolve()
+DATA_DIR = BASE_DIR.joinpath("data")
+OUT_DIR = BASE_DIR.joinpath("out")
+IMAGE_DIR = OUT_DIR.joinpath("images")
 
 # TODO: Set as env var
 NORMAL_DATA_FILEPATH = DATA_DIR.joinpath("normal.csv")
@@ -80,8 +81,8 @@ def get_all_averages_by_sector():
         writer.writerows(all_averages)
 
 
-def get_max_min(input_filepath: str):
-    scans = file_reader.read_csv(input_filepath)
+def get_max_min():
+    scans = file_reader.read_csv(NORMAL_DATA_FILEPATH)
 
     keys = []
 
@@ -104,7 +105,7 @@ def get_max_min(input_filepath: str):
 
 def draw_heat_map():
     df = pd.read_csv(NORMAL_AGGREGATE_STATS_FILEPATH)
-    mean_by_sector = {row["sector"]: row["mean"] for _, row in df.iterrows()}
+    means_by_sector = {row["sector"]: row["mean"] for _, row in df.iterrows()}
 
     df = pd.read_csv(STUDY_DATA_FILEPATH)
     for i, row in df.iterrows():
@@ -117,10 +118,11 @@ def draw_heat_map():
             else:
                 points.append(Point(i, int(row[f"td{i}"])))
 
-        visual_field = VisualField(points)
+        visual_field = VisualField(patient_id, points)
         garway_heath = GarwayHeathSectorization(visual_field)
-        print(garway_heath)
-        # garway_heath.draw_heat_map(mean_by_sector)
+        heat_map = garway_heath.draw_heat_map(means_by_sector)
+        heat_map.saveSvg(f"{IMAGE_DIR}/{patient_id}.svg")
+        # heat_map.savePng(IMAGE_DIR.joinpath(f"{patient_id}.png"))
 
 
 if __name__ == "__main__":

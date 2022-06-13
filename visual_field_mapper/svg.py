@@ -1,5 +1,2 @@
-import svgwrite
-
-
-def draw_visual_field():
-    pass
+class Svg:
+    def create_svg():

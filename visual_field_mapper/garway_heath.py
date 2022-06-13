@@ -1,6 +1,7 @@
 from statistics import mean
 from typing import Dict, List, NamedTuple
 
+import drawSvg
 from colorama import Back, Style
 
 from .visual_field import Point, VisualField
@@ -105,8 +106,121 @@ class GarwayHeathSectorization:
         ]
         return rows
 
-    def draw_heat_map(self, means_by_sector: Dict[str, float]):
-        pass
+    def draw_heat_map(self, means_by_sector: Dict[str, float]) -> drawSvg.Drawing:
+        matrix = self.to_matrix()
+        rect_size = 100
+        width = 11 * rect_size
+        height = 10 * rect_size
+        svg = drawSvg.Drawing(width, height, origin=(0, -height), displayInline=False)
+
+        starting_x = 1 * rect_size
+        starting_y = -2 * rect_size
+
+        x = starting_x
+        y = starting_y
+
+        def draw_cell(point: Point):
+            nonlocal x
+            nonlocal y
+
+            if point:
+                sector = get_sector(point)
+
+                fill = "black"
+                fill_opacity = 1.0
+
+                if sector.abbreviation != "BS":
+                    fill = "white"
+                    fill_opacity = 1.0
+
+                    mean = means_by_sector[sector.abbreviation]
+
+                    if point.total_deviation < mean:
+                        fill = "red"
+                        fill_opacity = (point.total_deviation - mean) / (-35 - mean)
+
+                rect = drawSvg.Rectangle(
+                    x,
+                    y,
+                    rect_size,
+                    rect_size,
+                    fill=fill,
+                    fill_opacity=fill_opacity,
+                )
+                svg.append(rect)
+
+            x += rect_size
+
+        def draw_row(points):
+            nonlocal x
+            nonlocal y
+            x = starting_x
+            row = [draw_cell(point) for point in points]
+            y -= rect_size
+            return row
+
+        [draw_row(row) for row in matrix]
+        outline = drawSvg.Lines(
+            starting_x + 3 * rect_size,
+            starting_y + 1 * rect_size,
+            starting_x + 7 * rect_size,
+            starting_y + 1 * rect_size,
+            starting_x + 7 * rect_size,
+            starting_y + 1 * rect_size,
+            starting_x + 7 * rect_size,
+            starting_y + 0 * rect_size,
+            starting_x + 8 * rect_size,
+            starting_y + 0 * rect_size,
+            starting_x + 8 * rect_size,
+            starting_y + -1 * rect_size,
+            starting_x + 9 * rect_size,
+            starting_y + -1 * rect_size,
+            starting_x + 9 * rect_size,
+            starting_y + -5 * rect_size,
+            starting_x + 8 * rect_size,
+            starting_y + -5 * rect_size,
+            starting_x + 8 * rect_size,
+            starting_y + -6 * rect_size,
+            starting_x + 7 * rect_size,
+            starting_y + -6 * rect_size,
+            starting_x + 7 * rect_size,
+            starting_y + -7 * rect_size,
+            starting_x + 3 * rect_size,
+            starting_y + -7 * rect_size,
+            starting_x + 3 * rect_size,
+            starting_y + -6 * rect_size,
+            starting_x + 2 * rect_size,
+            starting_y + -6 * rect_size,
+            starting_x + 2 * rect_size,
+            starting_y + -5 * rect_size,
+            starting_x + 1 * rect_size,
+            starting_y + -5 * rect_size,
+            starting_x + 1 * rect_size,
+            starting_y + -4 * rect_size,
+            starting_x + 0 * rect_size,
+            starting_y + -4 * rect_size,
+            starting_x + 0 * rect_size,
+            starting_y + -2 * rect_size,
+            starting_x + 1 * rect_size,
+            starting_y + -2 * rect_size,
+            starting_x + 1 * rect_size,
+            starting_y + -1 * rect_size,
+            starting_x + 2 * rect_size,
+            starting_y + -1 * rect_size,
+            starting_x + 2 * rect_size,
+            starting_y + 0 * rect_size,
+            starting_x + 3 * rect_size,
+            starting_y + 0 * rect_size,
+            starting_x + 3 * rect_size,
+            starting_y + 1 * rect_size,
+            fill_opacity=0,
+            stroke="black",
+            stroke_width=4,
+        )
+        svg.append(outline)
+        t = drawSvg.Text(str(self.visual_field.patient_id), 16, x=0, y=y)
+        svg.append(t)
+        return svg
 
     def __format_point(self, point: Point):
         sector = None
