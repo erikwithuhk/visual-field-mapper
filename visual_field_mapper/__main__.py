@@ -1,8 +1,10 @@
 import argparse
 import csv
+import logging
 import math
 import os
 from pathlib import Path
+from pprint import pformat
 
 import drawSvg as draw
 import numpy as np
@@ -28,6 +30,11 @@ NORMAL_MEAN_TD_BY_SECTOR_FILEPATH = OUT_DIR.joinpath("normal_mean_td_by_sector.c
 NORMAL_AGGREGATE_STATS_FILEPATH = OUT_DIR.joinpath("normal_aggregate_stats.csv")
 
 file_reader = FileReader()
+
+
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s | %(name)s | %(levelname)s | %(message)s"
+)
 
 
 def get_average_by_sector(input_file: str, output_file: str):
@@ -110,6 +117,8 @@ def get_max_min():
 
 
 def draw_visual_field():
+    logger = logging.getLogger("draw_visual_field")
+
     df = pd.read_csv(NORMAL_AGGREGATE_STATS_FILEPATH)
     percentiles_5_by_sector = {
         row["sector"]: row["percentile_5"] for _, row in df.iterrows()
@@ -125,9 +134,12 @@ def draw_visual_field():
     df = pd.read_csv(STUDY_DATA_FILEPATH)
     for i, row in df.iterrows():
         patient_id = row["PtID"]
-        eye = row["Eye"]
 
+        logger.info("Drawing visual field %s", pformat({"patient_id": patient_id}))
+
+        eye = row["Eye"]
         points = []
+
         for i in range(1, 55):
             if i == 26 or i == 35:
                 points.append(Point(i, None))
@@ -196,6 +208,8 @@ def draw_visual_field():
 
         svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient_id}.svg")
         svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
+
+    logger.info("All visual fields drawn %s", pformat({"total": len(df)}))
 
 
 if __name__ == "__main__":

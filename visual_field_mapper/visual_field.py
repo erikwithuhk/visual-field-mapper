@@ -1,4 +1,4 @@
-import enum
+from pprint import pformat
 from typing import List, NamedTuple
 
 import drawSvg as draw
@@ -12,6 +12,10 @@ class Fill(NamedTuple):
 
 
 class Point:
+    lower_limit = -35
+    upper_limit = 10
+    range = upper_limit - lower_limit
+
     def __init__(self, position: int, total_deviation: int):
         if position < 1 or position > 54:
             raise ValueError(
@@ -22,8 +26,6 @@ class Point:
         self.total_deviation = total_deviation
 
     def __repr__(self) -> str:
-        from pprint import pformat
-
         return pformat(vars(self))
 
     def is_blind_spot(self) -> bool:
@@ -32,8 +34,10 @@ class Point:
     def __get_fill(self) -> Fill:
         if self.is_blind_spot():
             return Fill(Colors.black.value, 1.0)
-        if self.total_deviation < 0:
-            return Fill(Colors.red.value, round(self.total_deviation / -35, 2))
+        if self.total_deviation <= Point.upper_limit:
+            return Fill(
+                Colors.red.value, round(abs(self.total_deviation / Point.range), 2)
+            )
         else:
             return Fill(Colors.white.value, 0.0)
 
@@ -65,8 +69,6 @@ class VisualField:
         self.points = points
 
     def __repr__(self) -> str:
-        from pprint import pformat
-
         return pformat(vars(self))
 
     def __create_row(self, points: List[Point]) -> List[Point]:
