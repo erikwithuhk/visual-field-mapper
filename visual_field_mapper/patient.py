@@ -29,7 +29,7 @@ class Patient:
         self.id = id
         self.visual_field = visual_field
 
-    def render(self, percentiles_5_by_sector):
+    def render(self, limits_by_sector):
         cell_dimensions = Dimensions(50, 50)
         drawing_dimensions = Dimensions(
             9 * cell_dimensions.width, 8 * cell_dimensions.height
@@ -83,7 +83,7 @@ class Patient:
             position_y,
         )
         garway_heath_map = garway_heath.draw(
-            percentiles_5_by_sector, cell_dimensions, garway_heath_position
+            limits_by_sector, cell_dimensions, garway_heath_position
         )
         svg.append(garway_heath_map)
 

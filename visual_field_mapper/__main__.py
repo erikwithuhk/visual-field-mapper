@@ -158,7 +158,7 @@ def __get_patient_data():
     return merge_df
 
 
-def __save_images(id, row, percentiles_5_by_sector):
+def __save_images(id, row, limits_by_sector):
     logger = logging.getLogger("__save_images")
     patient = Patient.parse(id, row)
 
@@ -166,7 +166,7 @@ def __save_images(id, row, percentiles_5_by_sector):
         return logger.info(f"{s} >> %s", pformat({"patient_id": patient.id}))
 
     log("Rendering SVG")
-    svg = patient.render(percentiles_5_by_sector)
+    svg = patient.render(limits_by_sector)
 
     log("Saving SVG")
     svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient.id}.svg")
@@ -182,7 +182,7 @@ def draw_visual_field():
     logger = logging.getLogger("draw_visual_field")
 
     normal_aggregate_df = pd.read_csv(NORMAL_AGGREGATE_STATS_FILEPATH)
-    percentiles_5_by_sector = {
+    limits_by_sector = {
         row["sector"]: row["percentile_5"] for _, row in normal_aggregate_df.iterrows()
     }
 
@@ -190,10 +190,7 @@ def draw_visual_field():
     patient_data = __get_patient_data()
 
     logger.info("Saving images")
-    [
-        __save_images(id, row, percentiles_5_by_sector)
-        for id, row in patient_data.iterrows()
-    ]
+    [__save_images(id, row, limits_by_sector) for id, row in patient_data.iterrows()]
 
     logger.info("All visual fields drawn >> %s", pformat({"total": len(patient_data)}))
 
