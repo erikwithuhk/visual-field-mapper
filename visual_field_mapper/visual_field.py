@@ -1,9 +1,15 @@
+from enum import Enum
 from pprint import pformat
 from typing import List, NamedTuple
 
 import drawSvg as draw
 
 from visual_field_mapper import Colors, Dimensions, Position
+
+
+class Eye(Enum):
+    od = "od"
+    os = "os"
 
 
 class Fill(NamedTuple):
@@ -63,8 +69,7 @@ class Point:
 
 
 class VisualField:
-    def __init__(self, patient_id: int, eye: str, points: List[Point]):
-        self.patient_id = patient_id
+    def __init__(self, eye: Eye, points: List[Point]):
         self.eye = eye
         self.points = points
 

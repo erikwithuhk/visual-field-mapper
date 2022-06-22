@@ -6,14 +6,12 @@ import os
 from pathlib import Path
 from pprint import pformat
 
-import drawSvg as draw
 import numpy as np
 import pandas as pd
 
-from visual_field_mapper import Colors, Dimensions, Position
-
 from .file_reader import FileReader
 from .garway_heath import SECTORS, GarwayHeathSectorization
+from .patient import Patient
 from .visual_field import Point, VisualField
 
 BASE_DIR = Path(__file__).parent.parent.resolve()
@@ -39,6 +37,8 @@ logging.basicConfig(
 
 
 def get_average_by_sector(input_file: str, output_file: str):
+    os.makedirs(Path(output_file).parent, exist_ok=True)
+
     averages = []
 
     scans = file_reader.read_csv(input_file)
@@ -53,7 +53,7 @@ def get_average_by_sector(input_file: str, output_file: str):
             else:
                 points.append(Point(i, int(scan[f"td{i}"])))
 
-        visual_field = VisualField(patient_id, eye, points)
+        visual_field = VisualField(eye, points)
         garway_heath = GarwayHeathSectorization(visual_field)
         averages_by_sector = garway_heath.get_means_by_sector()
         averages.append(
@@ -80,6 +80,8 @@ def get_stats(sector: str, series: pd.Series, percentile: int = 5):
 
 
 def get_all_averages_by_sector():
+    os.makedirs(Path(NORMAL_AGGREGATE_STATS_FILEPATH).parent, exist_ok=True)
+
     df = pd.read_csv(NORMAL_MEAN_TD_BY_SECTOR_FILEPATH)
 
     all_averages = [
@@ -117,14 +119,9 @@ def get_max_min():
     print(f"Max: {max_td}, Min: {min_td}")
 
 
-def __get_drawing_data():
+def __get_patient_data():
     patient_id_column = "PtID"
     matching_archetypes_column = "matching_archetypes"
-
-    normal_aggregate_df = pd.read_csv(NORMAL_AGGREGATE_STATS_FILEPATH)
-    percentiles_5_by_sector = {
-        row["sector"]: row["percentile_5"] for _, row in normal_aggregate_df.iterrows()
-    }
 
     tds_df = pd.read_csv(STUDY_DATA_FILEPATH)
     tds_df.set_index(patient_id_column, inplace=True)
@@ -158,103 +155,50 @@ def __get_drawing_data():
     if len(missing) > 0:
         raise Exception("Missing patient data")
 
-    return percentiles_5_by_sector, merge_df
+    return merge_df
+
+
+def __save_images(id, row, percentiles_5_by_sector):
+    logger = logging.getLogger("__save_images")
+    patient = Patient.parse(id, row)
+
+    def log(s):
+        return logger.info(f"{s} >> %s", pformat({"patient_id": patient.id}))
+
+    log("Rendering SVG")
+    svg = patient.render(percentiles_5_by_sector)
+
+    log("Saving SVG")
+    svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient.id}.svg")
+
+    log("Saving PNG")
+    svg.savePng(f"{IMAGE_DIR}/PNG/{patient.id}.png")
 
 
 def draw_visual_field():
-    logger = logging.getLogger("draw_visual_field")
-
-    percentiles_5_by_sector, patient_data = __get_drawing_data()
-
-    cell_dimensions = Dimensions(50, 50)
-    drawing_dimensions = Dimensions(
-        9 * cell_dimensions.width, 8 * cell_dimensions.height
-    )
-    margin = cell_dimensions.height
-    title_height = cell_dimensions.height / 2
-
-    for patient_id, row in patient_data.iterrows():
-        logger.info("Drawing visual field %s", pformat({"patient_id": patient_id}))
-
-        eye = row.loc["Eye"]
-        points = []
-
-        for i in range(1, 55):
-            if i == 26 or i == 35:
-                points.append(Point(i, None))
-            else:
-                points.append(Point(i, int(row.loc[f"td{i}"])))
-
-        table_width = 200
-        svg_dimensions = Dimensions(
-            drawing_dimensions.width * 2 + table_width + margin * 4,
-            title_height + drawing_dimensions.height + margin * 3,
-        )
-        svg = draw.Drawing(
-            svg_dimensions.width,
-            svg_dimensions.height,
-            origin=(0, -svg_dimensions.height),
-            displayInline=False,
-        )
-        background = draw.Rectangle(
-            0,
-            -svg_dimensions.height,
-            svg_dimensions.width,
-            svg_dimensions.height,
-            fill=Colors.white.value,
-        )
-        svg.append(background)
-
-        title = draw.Text(
-            f"Patient #{patient_id}",
-            16 * 2,
-            x="50%",
-            y=-margin,
-            height=title_height,
-            font_family="Arial,Helvetica",
-            center=True,
-            font_weight="bold",
-        )
-        svg.append(title)
-
-        position_y = title_height + margin * 2
-
-        visual_field = VisualField(patient_id, eye, points)
-        visual_field_position = Position(margin, position_y)
-        visual_field_map = visual_field.draw(cell_dimensions, visual_field_position)
-        svg.append(visual_field_map)
-
-        garway_heath = GarwayHeathSectorization(visual_field)
-        garway_heath_position = Position(
-            visual_field_position.x + drawing_dimensions.width + margin,
-            position_y,
-        )
-        garway_heath_map = garway_heath.draw(
-            percentiles_5_by_sector, cell_dimensions, garway_heath_position
-        )
-        svg.append(garway_heath_map)
-
-        garway_heath_table = garway_heath.draw_table(
-            table_width,
-            Position(
-                garway_heath_position.x + drawing_dimensions.width + margin,
-                position_y + drawing_dimensions.height / 2 - 24 * 3.5,
-            ),
-        )
-        svg.append(
-            garway_heath_table,
-        )
-
-        svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient_id}.svg")
-        svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
-
-    logger.info("All visual fields drawn %s", pformat({"total": len(patient_data)}))
-
-
-if __name__ == "__main__":
     os.makedirs(SVG_DIR, exist_ok=True)
     os.makedirs(PNG_DIR, exist_ok=True)
 
+    logger = logging.getLogger("draw_visual_field")
+
+    normal_aggregate_df = pd.read_csv(NORMAL_AGGREGATE_STATS_FILEPATH)
+    percentiles_5_by_sector = {
+        row["sector"]: row["percentile_5"] for _, row in normal_aggregate_df.iterrows()
+    }
+
+    logger.info("Reading patient data")
+    patient_data = __get_patient_data()
+
+    logger.info("Saving images")
+    [
+        __save_images(id, row, percentiles_5_by_sector)
+        for id, row in patient_data.iterrows()
+    ]
+
+    logger.info("All visual fields drawn >> %s", pformat({"total": len(patient_data)}))
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser("visual_field_mapper")
     subparser = parser.add_subparsers(dest="command")
 
