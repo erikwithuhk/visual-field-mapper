@@ -25,6 +25,7 @@ PNG_DIR = IMAGE_DIR.joinpath("PNG")
 
 NORMAL_DATA_FILEPATH = DATA_DIR.joinpath("normal.csv")
 STUDY_DATA_FILEPATH = DATA_DIR.joinpath("study.csv")
+ARCHETYPE_DATA_FILEPATH = DATA_DIR.joinpath("archetypal_analysis.csv")
 
 NORMAL_MEAN_TD_BY_SECTOR_FILEPATH = OUT_DIR.joinpath("normal_mean_td_by_sector.csv")
 NORMAL_AGGREGATE_STATS_FILEPATH = OUT_DIR.joinpath("normal_aggregate_stats.csv")
@@ -116,13 +117,54 @@ def get_max_min():
     print(f"Max: {max_td}, Min: {min_td}")
 
 
+def __get_drawing_data():
+    patient_id_column = "PtID"
+    matching_archetypes_column = "matching_archetypes"
+
+    normal_aggregate_df = pd.read_csv(NORMAL_AGGREGATE_STATS_FILEPATH)
+    percentiles_5_by_sector = {
+        row["sector"]: row["percentile_5"] for _, row in normal_aggregate_df.iterrows()
+    }
+
+    tds_df = pd.read_csv(STUDY_DATA_FILEPATH)
+    tds_df.set_index(patient_id_column, inplace=True)
+
+    selected_rows = ["Eye"]
+    # Select TD rows
+    selected_rows.extend([f"td{i}" for i in range(1, 55)])
+    # Select sector averages
+    selected_rows.extend([sector for sector in SECTORS if sector != "BS"])
+    tds_df = tds_df[selected_rows]
+
+    archetypes_df = pd.read_csv(ARCHETYPE_DATA_FILEPATH)
+    archetypes_df.set_index(patient_id_column, inplace=True)
+
+    # Select the columns needed to find matching archetypes
+    archetypes_df = archetypes_df[[f"AT{i}" for i in range(1, 17)]]
+
+    # Get matching archetypes
+    archetypes_df[matching_archetypes_column] = archetypes_df.apply(
+        lambda row: row[pd.to_numeric(row, errors="coerce") >= 0.07].index.to_list(),
+        axis=1,
+    )
+
+    # Only keep matching archetypes column
+    archetypes_df = archetypes_df[[matching_archetypes_column]]
+
+    merge_df = pd.merge(tds_df, archetypes_df, on=patient_id_column, indicator=True)
+
+    missing = merge_df.loc[merge_df["_merge"] != "both"]
+
+    if len(missing) > 0:
+        raise Exception("Missing patient data")
+
+    return percentiles_5_by_sector, merge_df
+
+
 def draw_visual_field():
     logger = logging.getLogger("draw_visual_field")
 
-    df = pd.read_csv(NORMAL_AGGREGATE_STATS_FILEPATH)
-    percentiles_5_by_sector = {
-        row["sector"]: row["percentile_5"] for _, row in df.iterrows()
-    }
+    percentiles_5_by_sector, patient_data = __get_drawing_data()
 
     cell_dimensions = Dimensions(50, 50)
     drawing_dimensions = Dimensions(
@@ -131,20 +173,17 @@ def draw_visual_field():
     margin = cell_dimensions.height
     title_height = cell_dimensions.height / 2
 
-    df = pd.read_csv(STUDY_DATA_FILEPATH)
-    for i, row in df.iterrows():
-        patient_id = row["PtID"]
-
+    for patient_id, row in patient_data.iterrows():
         logger.info("Drawing visual field %s", pformat({"patient_id": patient_id}))
 
-        eye = row["Eye"]
+        eye = row.loc["Eye"]
         points = []
 
         for i in range(1, 55):
             if i == 26 or i == 35:
                 points.append(Point(i, None))
             else:
-                points.append(Point(i, int(row[f"td{i}"])))
+                points.append(Point(i, int(row.loc[f"td{i}"])))
 
         table_width = 200
         svg_dimensions = Dimensions(
@@ -209,7 +248,7 @@ def draw_visual_field():
         svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient_id}.svg")
         svg.savePng(f"{IMAGE_DIR}/PNG/{patient_id}.png")
 
-    logger.info("All visual fields drawn %s", pformat({"total": len(df)}))
+    logger.info("All visual fields drawn %s", pformat({"total": len(patient_data)}))
 
 
 if __name__ == "__main__":
