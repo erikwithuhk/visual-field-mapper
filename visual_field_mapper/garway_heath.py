@@ -1,3 +1,4 @@
+from pprint import pformat
 from statistics import mean
 from typing import List, NamedTuple
 
@@ -75,31 +76,8 @@ class GarwayHeathSectorization:
             if sector != "BS"
         }
 
-    def __format_point(self, point: Point):
-        sector = None
-        total_deviation = "   "
-
-        if point:
-            sector = get_sector(point)
-
-            total_deviation = str(point.total_deviation)
-
-            if point.total_deviation == None:
-                total_deviation = "   "
-            elif point.total_deviation >= 0 and point.total_deviation < 10:
-                total_deviation = f"  {total_deviation}"
-            elif point.total_deviation > -10:
-                total_deviation = f" {total_deviation}"
-
-        return f"{sector.print_color if sector else ''} {total_deviation} {Back.RESET}{Style.RESET_ALL}"
-
-    def __format_row(self, points: List[Point]):
-        return "".join([self.__format_point(point) for point in points])
-
     def __repr__(self):
-        matrix = self.to_matrix()
-
-        return "\n".join([self.__format_row(row) for row in matrix])
+        return pformat(vars(self))
 
     def __draw_point(self, dimensions: Dimensions, position: Position) -> draw.Circle:
         return draw.Circle(
