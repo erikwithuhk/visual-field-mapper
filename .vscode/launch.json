@@ -43,6 +43,14 @@
       "module": "visual_field_mapper",
       "justMyCode": true,
       "args": [ "draw" ]
+    },
+    {
+      "name": "get-archetype-fills",
+      "type": "python",
+      "request": "launch",
+      "module": "visual_field_mapper",
+      "justMyCode": true,
+      "args": [ "get-archetype-fills" ]
     }
   ]
 }

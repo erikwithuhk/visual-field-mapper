@@ -5,6 +5,7 @@ import math
 import os
 from pathlib import Path
 from pprint import pformat
+from xml.dom import minidom
 
 import numpy as np
 import pandas as pd
@@ -15,6 +16,7 @@ from .patient import Patient
 from .visual_field import Point, VisualField
 
 BASE_DIR = Path(__file__).parent.parent.resolve()
+ASSETS_DIR = BASE_DIR.joinpath("assets")
 DATA_DIR = BASE_DIR.joinpath("data")
 OUT_DIR = BASE_DIR.joinpath("out")
 IMAGE_DIR = OUT_DIR.joinpath("images")
@@ -195,6 +197,58 @@ def draw_visual_field():
     logger.info("All visual fields drawn >> %s", pformat({"total": len(patient_data)}))
 
 
+def __get_coordinates(x: float, y: float):
+    width = 17.42
+    height = 14.56
+    row = y / height
+    column = x / width
+    return (round(row), round(column))
+
+
+COL_OFFSETS = [3, 2, 1, 0, 0, 1, 2, 3]
+TOTAL_COLUMNS = 9
+ROW_LENGTHS = [4, 6, 8, 9, 9, 8, 6, 4]
+ROW_STARTS = [1, 5, 11, 19, 28, 37, 45, 51]
+
+
+def __get_position(coordinates) -> int:
+    row = coordinates[0]
+    col = coordinates[1]
+    return ROW_STARTS[row] + col - COL_OFFSETS[row] - 1
+
+
+def __extract_fills(svg):
+    rects = svg.getElementsByTagName("rect")
+    fills = [None] * 54
+    for rect in rects:
+        x = rect.getAttribute("x") or 0
+        y = rect.getAttribute("y") or 0
+        coordinates = __get_coordinates(float(x), float(y))
+        position = __get_position(coordinates)
+
+        fill = rect.getAttribute("fill")
+
+        if fill == "none" or fill == "#bfbebe":
+            fill = None
+
+        if fill:
+            fills[position] = fill
+    return fills
+
+
+def __parse_archetype_fill(id: int):
+    filepath = str(ASSETS_DIR.joinpath(f"{id}.svg"))
+    svg = minidom.parse(filepath)
+    return __extract_fills(svg)
+
+
+def get_archetype_fills():
+    fills = {f"{id}": __parse_archetype_fill(id) for id in range(1, 17)}
+    df = pd.DataFrame(fills).transpose()
+    df.index.name = "id"
+    df.to_csv(OUT_DIR.joinpath("archetype_fills.csv"))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("visual_field_mapper")
     subparser = parser.add_subparsers(dest="command")
@@ -206,6 +260,7 @@ if __name__ == "__main__":
     all_averages_by_sector_parser = subparser.add_parser("all-averages")
     max_min_parser = subparser.add_parser("max-min")
     draw_parser = subparser.add_parser("draw")
+    get_archetype_fills_parser = subparser.add_parser("get-archetype-fills")
 
     args = parser.parse_args()
 
@@ -220,3 +275,6 @@ if __name__ == "__main__":
 
     if args.command == "draw":
         draw_visual_field()
+
+    if args.command == "get-archetype-fills":
+        get_archetype_fills()

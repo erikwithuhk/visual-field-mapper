@@ -1,7 +1,16 @@
-import pytest
-from visual_field_mapper.__main__ import get_stats, get_all_averages_by_sector
-import pandas as pd
+from xml.dom import minidom
 
+import pandas as pd
+from visual_field_mapper.__main__ import (
+    ASSETS_DIR,
+    __extract_fills,
+    __get_coordinates,
+    __get_position,
+    get_all_averages_by_sector,
+    get_stats,
+)
+
+import pytest
 
 TEST_VALUES = [
     -1.909090909,
@@ -4712,3 +4721,131 @@ def test_get_all_averages_by_sector(mocker):
     for row in dict_writer_call_data[0]:
         if row["sector"] == sector:
             assert round(row["mean"], 4) == round(-1.55114486, 4)
+
+
+# <rect y="58.22" width="17.42" height="14.56" fill="#fde1d7"/> <!-- 28 row:4 col:0  -->
+# <rect y="43.67" width="17.42" height="14.56" fill="#fde4d9"/> <!-- 19  row:3 col:0-->
+# <rect x="17.43" y="72.78" width="17.42" height="14.56" fill="#fde1d6"/> <!-- 37 row:5 col:1  -->
+# <rect x="17.43" y="58.22" width="17.42" height="14.56" fill="#fdded3"/> <!-- 29  row:4 col:1-->
+
+
+@pytest.mark.parametrize(
+    "x, y, expected",
+    [
+        (0, 0, (0, 0)),
+        (0, 14.56, (1, 0)),
+        (0, 29.12, (2, 0)),
+        (0, 43.67, (3, 0)),
+        (0, 58.22, (4, 0)),
+        (0, 72.8, (5, 0)),
+        (0, 87.36, (6, 0)),
+        (0, 101.92, (7, 0)),
+        (17.42, 0, (0, 1)),
+        (34.84, 0, (0, 2)),
+        (52.26, 0, (0, 3)),
+        (69.68, 0, (0, 4)),
+        (87.10, 0, (0, 5)),
+        (104.52, 0, (0, 6)),
+        (121.94, 0, (0, 7)),
+        (139.36, 0, (0, 8)),
+    ],
+)
+def test___get_coordinates(x, y, expected):
+    assert __get_coordinates(x, y) == expected
+
+
+@pytest.mark.parametrize(
+    "row, col, expected",
+    [
+        (0, 3, 0),
+        (0, 4, 1),
+        (0, 5, 2),
+        (0, 6, 3),
+        (1, 2, 4),
+        (1, 3, 5),
+        (1, 4, 6),
+        (1, 5, 7),
+        (1, 6, 8),
+        (1, 7, 9),
+        (2, 1, 10),
+        (2, 2, 11),
+        (2, 3, 12),
+        (2, 4, 13),
+        (2, 5, 14),
+        (2, 6, 15),
+        (2, 7, 16),
+        (2, 8, 17),
+        (3, 0, 18),
+        (3, 1, 19),
+        (3, 2, 20),
+        (3, 3, 21),
+        (3, 4, 22),
+        (3, 5, 23),
+        (4, 0, 27),
+    ],
+)
+def test___get_position(row, col, expected):
+    assert __get_position((row, col)) == expected
+
+
+def test_get_archetype_fills():
+    filepath = str(ASSETS_DIR.joinpath("1.svg"))
+    svg = minidom.parse(filepath)
+    actual = __extract_fills(svg)
+    expected = [
+        "#fee7de",
+        "#fee7de",
+        "#fee5dc",
+        "#fee6de",
+        "#fde1d6",
+        "#fddbce",
+        "#fddbce",
+        "#fddfd4",
+        "#fde0d5",
+        "#fde1d6",
+        "#fdded3",
+        "#fdd9cd",
+        "#fddbce",
+        "#fddace",
+        "#fdd9cd",
+        "#fdd9cd",
+        "#fddcd1",
+        "#fde0d5",
+        "#fde4d9",
+        "#fdded3",
+        "#fdddd1",
+        "#fdd8ca",
+        "#fdddd1",
+        "#fddcd1",
+        "#fddbd0",
+        None,
+        "#fde1d7",
+        "#fde1d7",
+        "#fdded3",
+        "#fddbce",
+        "#fdd8cb",
+        "#fddbce",
+        "#fddcd1",
+        "#fddace",
+        None,
+        "#fdded3",
+        "#fde1d6",
+        "#fddace",
+        "#fdd8cb",
+        "#fcd4c5",
+        "#fdd7ca",
+        "#fdd7ca",
+        "#fddcd1",
+        "#fdddd1",
+        "#fddace",
+        "#fdd8ca",
+        "#fdd8ca",
+        "#fdd7ca",
+        "#fddbce",
+        "#fddcd1",
+        "#fddcd1",
+        "#fddcd1",
+        "#fddcd1",
+        "#fddcd1",
+    ]
+    assert actual == expected
