@@ -4723,12 +4723,6 @@ def test_get_all_averages_by_sector(mocker):
             assert round(row["mean"], 4) == round(-1.55114486, 4)
 
 
-# <rect y="58.22" width="17.42" height="14.56" fill="#fde1d7"/> <!-- 28 row:4 col:0  -->
-# <rect y="43.67" width="17.42" height="14.56" fill="#fde4d9"/> <!-- 19  row:3 col:0-->
-# <rect x="17.43" y="72.78" width="17.42" height="14.56" fill="#fde1d6"/> <!-- 37 row:5 col:1  -->
-# <rect x="17.43" y="58.22" width="17.42" height="14.56" fill="#fdded3"/> <!-- 29  row:4 col:1-->
-
-
 @pytest.mark.parametrize(
     "x, y, expected",
     [
