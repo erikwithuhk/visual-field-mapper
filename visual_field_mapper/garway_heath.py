@@ -92,8 +92,11 @@ class GarwayHeathSectorization:
 
         sector_limit = self.__limits_by_sector[sector.abbreviation]
         sector_mean = self.get_means_by_sector()[sector.abbreviation]
-        if sector_mean < sector_limit:
-            fill_opacity = sector_mean / (-35 - sector_limit)
+
+        range = sector_limit - -35
+
+        if sector_mean <= sector_limit:
+            fill_opacity = 1 - round((sector_mean + 35) / range, 2)
 
         return fill_opacity
 
