@@ -30,12 +30,13 @@ class Point:
 
         self.position = position
         self.total_deviation = total_deviation
+        self.fill = fill or self.__get_fill()
 
     def __repr__(self) -> str:
         return pformat(vars(self))
 
     def is_blind_spot(self) -> bool:
-        return self.position == 26 or self.position == 35
+        return self.total_deviation == None
 
     def __get_fill(self) -> Fill:
         if self.is_blind_spot():
