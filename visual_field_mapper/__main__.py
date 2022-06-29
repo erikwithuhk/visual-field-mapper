@@ -25,6 +25,7 @@ OUT_DIR = BASE_DIR.joinpath("out")
 IMAGE_DIR = OUT_DIR.joinpath("images")
 SVG_DIR = IMAGE_DIR.joinpath("SVG")
 PNG_DIR = IMAGE_DIR.joinpath("PNG")
+ARCHETYPE_DIR = IMAGE_DIR.joinpath("archetypes")
 
 NORMAL_DATA_FILEPATH = DATA_DIR.joinpath("normal.csv")
 STUDY_DATA_FILEPATH = DATA_DIR.joinpath("study.csv")
@@ -180,8 +181,10 @@ def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
     ]
     archetypes_by_id = {archetype.id: archetype for archetype in all_archetypes}
     archetype_svgs = [archetype.render() for archetype in all_archetypes]
+
+    os.makedirs(ARCHETYPE_DIR, exist_ok=True)
     [
-        svg.saveSvg(f"{IMAGE_DIR}/archetype_{i + 1}.svg")
+        svg.saveSvg(f"{ARCHETYPE_DIR}/archetype_{i + 1}.svg")
         for i, svg in enumerate(archetype_svgs)
     ]
 
@@ -194,10 +197,10 @@ def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
     svg = patient.render(limits_by_sector)
 
     log("Saving SVG")
-    svg.saveSvg(f"{IMAGE_DIR}/SVG/{patient.id}.svg")
+    svg.saveSvg(f"{IMAGE_DIR}/SVG/patient_{patient.id}.svg")
 
     log("Saving PNG")
-    svg.savePng(f"{IMAGE_DIR}/PNG/{patient.id}.png")
+    svg.savePng(f"{IMAGE_DIR}/PNG/patient_{patient.id}.png")
 
 
 def draw_visual_field():
