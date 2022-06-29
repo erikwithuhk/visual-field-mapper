@@ -20,9 +20,9 @@ class Fill(NamedTuple):
 class Point:
     lower_limit = -35
     upper_limit = 10
-    range = upper_limit - lower_limit
+    range = abs(upper_limit - lower_limit)
 
-    def __init__(self, position: int, total_deviation: int):
+    def __init__(self, position: int, total_deviation: int, color: str = None):
         if position < 1 or position > 54:
             raise ValueError(
                 f"Point position must be between 1 and 54, received <{position}>."
@@ -30,7 +30,7 @@ class Point:
 
         self.position = position
         self.total_deviation = total_deviation
-        self.fill = fill or self.__get_fill()
+        self.fill = Fill(color, 1.0) if color else self.__get_fill()
 
     def __repr__(self) -> str:
         return pformat(vars(self))
@@ -43,21 +43,20 @@ class Point:
             return Fill(Colors.black.value, 1.0)
         if self.total_deviation <= Point.upper_limit:
             return Fill(
-                Colors.red.value, round(abs(self.total_deviation / Point.range), 2)
+                Colors.red.value,
+                1 - round((self.total_deviation + 35) / Point.range, 2),
             )
         else:
             return Fill(Colors.white.value, 0.0)
 
     def draw(self, dimensions: Dimensions, position: Position) -> draw.Group:
-        fill = self.__get_fill()
-
         rect = draw.Rectangle(
             position.x,
             position.y,
             dimensions.width,
             dimensions.height,
-            fill=fill.color,
-            fill_opacity=fill.opacity,
+            fill=self.fill.color,
+            fill_opacity=self.fill.opacity,
         )
 
         dot = draw.Circle(
