@@ -1,4 +1,4 @@
-draw-images: get-all-normal-averages get-study-averages
+draw: get-all-normal-averages get-study-averages get-archetype-fills
 	python -m visual_field_mapper draw
 
 get-normal-averages:
