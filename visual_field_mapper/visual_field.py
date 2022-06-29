@@ -22,7 +22,7 @@ class Point:
     upper_limit = 10
     range = abs(upper_limit - lower_limit)
 
-    def __init__(self, position: int, total_deviation: int, color: str = None):
+    def __init__(self, position: int, total_deviation: int = None, color: str = None):
         if position < 1 or position > 54:
             raise ValueError(
                 f"Point position must be between 1 and 54, received <{position}>."

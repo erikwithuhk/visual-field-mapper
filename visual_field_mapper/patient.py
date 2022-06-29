@@ -1,17 +1,22 @@
 import logging
 from pprint import pformat
+from typing import Dict, List
 
 import drawSvg as draw
 
 from visual_field_mapper import Colors, Dimensions, Position
 
+from .archetype import Archetype
 from .garway_heath import GarwayHeathSectorization
 from .visual_field import Point, VisualField
 
 
 class Patient:
+    def _parse_archetype_id():
+        pass
+
     @classmethod
-    def parse(self, id, row):
+    def parse(self, id, row, archetypes_by_id: Dict[int, Archetype]):
         points = []
 
         for i in range(1, 55):
@@ -20,14 +25,19 @@ class Patient:
             else:
                 points.append(Point(i, int(row.loc[f"td{i}"])))
 
-        visual_field = VisualField(row.loc["Eye"], points)
-
-        patient = Patient(id, visual_field)
+        visual_field = VisualField(row.Eye, points)
+        matching_archetypes = [
+            archetypes_by_id[archetype_id] for archetype_id in row.matching_archetypes
+        ]
+        patient = Patient(id, visual_field, matching_archetypes)
         return patient
 
-    def __init__(self, id: int, visual_field: VisualField):
+    def __init__(
+        self, id: int, visual_field: VisualField, matching_archetypes: List[Archetype]
+    ):
         self.id = id
         self.visual_field = visual_field
+        self.matching_archetypes = matching_archetypes
 
     def render(self, limits_by_sector):
         cell_dimensions = Dimensions(50, 50)

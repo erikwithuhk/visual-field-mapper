@@ -5,10 +5,13 @@ import math
 import os
 from pathlib import Path
 from pprint import pformat
+from typing import List
 from xml.dom import minidom
 
 import numpy as np
 import pandas as pd
+
+from visual_field_mapper.archetype import Archetype
 
 from .file_reader import FileReader
 from .garway_heath import SECTORS, GarwayHeathSectorization
@@ -29,6 +32,7 @@ ARCHETYPE_DATA_FILEPATH = DATA_DIR.joinpath("archetypal_analysis.csv")
 
 NORMAL_MEAN_TD_BY_SECTOR_FILEPATH = OUT_DIR.joinpath("normal_mean_td_by_sector.csv")
 NORMAL_AGGREGATE_STATS_FILEPATH = OUT_DIR.joinpath("normal_aggregate_stats.csv")
+ARCHETYPE_FILL_COLORS_FILEPATH = OUT_DIR.joinpath("archetype_fill_colors.csv")
 
 file_reader = FileReader()
 
@@ -141,9 +145,15 @@ def __get_patient_data():
     # Select the columns needed to find matching archetypes
     archetypes_df = archetypes_df[[f"AT{i}" for i in range(1, 17)]]
 
+    def find_matching_archetype_ids(row) -> List[int]:
+        matching_archetypes_cols = row[
+            pd.to_numeric(row, errors="coerce") >= 0.07
+        ].index.to_list()
+        return [int(col.replace("AT", "")) for col in matching_archetypes_cols]
+
     # Get matching archetypes
     archetypes_df[matching_archetypes_column] = archetypes_df.apply(
-        lambda row: row[pd.to_numeric(row, errors="coerce") >= 0.07].index.to_list(),
+        find_matching_archetype_ids,
         axis=1,
     )
 
@@ -160,9 +170,22 @@ def __get_patient_data():
     return merge_df
 
 
-def __save_images(id, row, limits_by_sector):
+def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
     logger = logging.getLogger("__save_images")
-    patient = Patient.parse(id, row)
+
+    logger.info("Saving matching_archetype SVGs")
+    all_archetypes = [
+        Archetype.parse(id, fill_colors)
+        for id, fill_colors in fill_colors_by_archetype.iterrows()
+    ]
+    archetypes_by_id = {archetype.id: archetype for archetype in all_archetypes}
+    archetype_svgs = [archetype.render() for archetype in all_archetypes]
+    [
+        svg.saveSvg(f"{IMAGE_DIR}/archetype_{i + 1}.svg")
+        for i, svg in enumerate(archetype_svgs)
+    ]
+
+    patient = Patient.parse(id, row, archetypes_by_id)
 
     def log(s):
         return logger.info(f"{s} >> %s", pformat({"patient_id": patient.id}))
@@ -183,16 +206,24 @@ def draw_visual_field():
 
     logger = logging.getLogger("draw_visual_field")
 
+    logger.info("Getting limits by sector")
     normal_aggregate_df = pd.read_csv(NORMAL_AGGREGATE_STATS_FILEPATH)
     limits_by_sector = {
         row["sector"]: row["percentile_5"] for _, row in normal_aggregate_df.iterrows()
     }
 
+    logger.info("Getting fills by archetype")
+    fill_colors_by_archetype = pd.read_csv(ARCHETYPE_FILL_COLORS_FILEPATH)
+    fill_colors_by_archetype = fill_colors_by_archetype.set_index("id")
+
     logger.info("Reading patient data")
     patient_data = __get_patient_data()
 
     logger.info("Saving images")
-    [__save_images(id, row, limits_by_sector) for id, row in patient_data.iterrows()]
+    [
+        __save_images(id, row, limits_by_sector, fill_colors_by_archetype)
+        for id, row in patient_data.iterrows()
+    ]
 
     logger.info("All visual fields drawn >> %s", pformat({"total": len(patient_data)}))
 
@@ -246,7 +277,7 @@ def get_archetype_fills():
     fills = {f"{id}": __parse_archetype_fill(id) for id in range(1, 17)}
     df = pd.DataFrame(fills).transpose()
     df.index.name = "id"
-    df.to_csv(OUT_DIR.joinpath("archetype_fills.csv"))
+    df.to_csv(ARCHETYPE_FILL_COLORS_FILEPATH)
 
 
 if __name__ == "__main__":
