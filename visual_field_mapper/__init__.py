@@ -28,7 +28,7 @@ ARCHETYPE_FILL_COLORS_FILEPATH = OUT_DIR.joinpath("archetype_fill_colors.csv")
 
 
 class Colors(Enum):
-    black = "#000"
+    black = "#333"
     gray = "#bebebe"
     blue = "#386cb0"
     green = "#7fc97f"
