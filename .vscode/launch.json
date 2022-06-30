@@ -42,7 +42,7 @@
       "request": "launch",
       "module": "visual_field_mapper",
       "justMyCode": true,
-      "args": [ "draw" ]
+      "args": [ "draw", "--test" ]
     },
     {
       "name": "get-archetype-fills",

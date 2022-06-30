@@ -199,7 +199,7 @@ def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
     svg.savePng(f"{IMAGE_DIR}/PNG/patient_{patient.id}.png")
 
 
-def draw_visual_field():
+def draw_visual_field(test: bool = False):
     os.makedirs(SVG_DIR, exist_ok=True)
     os.makedirs(PNG_DIR, exist_ok=True)
 
@@ -219,6 +219,9 @@ def draw_visual_field():
     patient_data = __get_patient_data()
 
     logger.info("Saving images")
+    if test:
+        patient_data = patient_data[:10]
+
     [
         __save_images(id, row, limits_by_sector, fill_colors_by_archetype)
         for id, row in patient_data.iterrows()
@@ -289,7 +292,10 @@ if __name__ == "__main__":
 
     all_averages_by_sector_parser = subparser.add_parser("all-averages")
     max_min_parser = subparser.add_parser("max-min")
+
     draw_parser = subparser.add_parser("draw")
+    draw_parser.add_argument("--test", action=argparse.BooleanOptionalAction)
+
     get_archetype_fills_parser = subparser.add_parser("get-archetype-fills")
 
     args = parser.parse_args()
@@ -304,7 +310,7 @@ if __name__ == "__main__":
         get_max_min()
 
     if args.command == "draw":
-        draw_visual_field()
+        draw_visual_field(test=args.test)
 
     if args.command == "get-archetype-fills":
         get_archetype_fills()
