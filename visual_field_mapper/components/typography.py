@@ -1,10 +1,9 @@
-from svgwrite.container import SVG
 from svgwrite.shapes import Rect
 from svgwrite.text import Text as SVGText
+from visual_field_mapper import Colors
 
 from . import BASE_FONT_SIZE, rem
 from .base_component import BaseComponent
-from visual_field_mapper import Colors
 
 
 class Text(BaseComponent):
