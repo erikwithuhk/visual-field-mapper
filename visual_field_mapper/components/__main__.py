@@ -6,9 +6,9 @@ from svgwrite import Drawing
 from visual_field_mapper import OUT_DIR
 
 from . import rem
-from .typography import H1_EXAMPLE, H2_EXAMPLE, H3_EXAMPLE
+from .typography import TEXT_EXAMPLE, H1_EXAMPLE, H2_EXAMPLE, H3_EXAMPLE, H4_EXAMPLE
 
-__COMPONENTS = [H1_EXAMPLE, H2_EXAMPLE, H3_EXAMPLE]
+__COMPONENTS = [TEXT_EXAMPLE, H1_EXAMPLE, H2_EXAMPLE, H3_EXAMPLE, H4_EXAMPLE]
 
 
 BUILD_DIR = OUT_DIR.joinpath("components")

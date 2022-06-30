@@ -48,6 +48,9 @@ class Text(BaseComponent):
         return super().render(children, debug=debug)
 
 
+TEXT_EXAMPLE = Text("Lorem Ipsum")
+
+
 class H1(Text):
     def __init__(self, text):
         super().__init__(
@@ -87,3 +90,16 @@ class H3(Text):
 
 
 H3_EXAMPLE = H3("Lorem Ipsum")
+
+
+class H4(Text):
+    def __init__(self, text):
+        super().__init__(
+            text,
+            font_size=rem(1),  # 16px
+            line_height=rem(1.5),  # 24px
+            margin_top=rem(1.5),  # 24px
+        )
+
+
+H4_EXAMPLE = H4("Lorem Ipsum")
