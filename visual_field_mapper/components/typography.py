@@ -1,5 +1,3 @@
-from svgwrite.shapes import Rect
-from svgwrite.text import Text as SVGText
 from visual_field_mapper import Colors, Position
 
 from . import BASE_FONT_SIZE, rem
@@ -38,6 +36,7 @@ class Text(BaseComponent):
             self.font_size,
             x=position.x,
             y=position.y,
+            color=Colors.black.value,
             font_family="Arial,Helvetica",
             font_weight=self.font_weight,
             alignment_baseline="hanging",
