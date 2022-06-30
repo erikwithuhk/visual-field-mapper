@@ -1,5 +1,5 @@
 from typing import Union
-from visual_field_mapper import Position
+from visual_field_mapper import Dimensions, Position
 
 
 def is_numeric(x):
@@ -24,6 +24,10 @@ class BaseComponent:
         self.margin_left = margin_left
         self.margin_right = margin_right
         self.position = position
+        self.size = Dimensions(
+            self.margin_left + self.width + self.margin_right,
+            self.margin_top + self.height + self.margin_bottom,
+        )
 
     def get_position(self):
         x = self.position.x

@@ -5,6 +5,7 @@ from typing import Dict, List
 import drawSvg as draw
 
 from visual_field_mapper import Colors, Dimensions, Position
+from visual_field_mapper.components import rem
 from visual_field_mapper.components.typography import H1
 
 from .archetype import Archetype
@@ -41,17 +42,24 @@ class Patient:
         self.matching_archetypes = matching_archetypes
 
     def render(self, limits_by_sector):
+        margin = rem(6)
+
+        children = []
+
+        title = H1(f"Patient #{self.id}", position=Position("50%", margin))
+        children.append(title)
+
+        ###
+
         cell_dimensions = Dimensions(50, 50)
         drawing_dimensions = Dimensions(
             9 * cell_dimensions.width, 8 * cell_dimensions.height
         )
-        margin = cell_dimensions.height
-        title_height = cell_dimensions.height / 2
 
         table_width = 200
         svg_dimensions = Dimensions(
             drawing_dimensions.width * 2 + table_width + margin * 4,
-            title_height + drawing_dimensions.height + margin * 3,
+            title.size.height + drawing_dimensions.height + margin * 3,
         )
         svg = draw.Drawing(
             svg_dimensions.width,
@@ -68,10 +76,10 @@ class Patient:
         )
         svg.append(background)
 
-        title = H1(f"Patient #{self.id}", position=Position("50%", margin * -1))
-        svg.append(title.render())
+        [svg.append(child.render()) for child in children]
+        # svg.append(title.render())
 
-        position_y = title_height + margin * 2
+        position_y = title.size.height + margin * 2
 
         visual_field_position = Position(margin, position_y)
         visual_field_map = self.visual_field.draw(
