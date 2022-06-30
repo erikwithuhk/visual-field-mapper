@@ -51,6 +51,14 @@
       "module": "visual_field_mapper",
       "justMyCode": true,
       "args": [ "get-archetype-fills" ]
+    },
+    {
+      "name": "build-component-library",
+      "type": "python",
+      "request": "launch",
+      "module": "visual_field_mapper.components",
+      "justMyCode": true,
+      "args": [ "build" ]
     }
   ]
 }
