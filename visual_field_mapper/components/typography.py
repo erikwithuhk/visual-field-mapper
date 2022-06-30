@@ -1,9 +1,15 @@
 from svgwrite.shapes import Rect
 from svgwrite.text import Text as SVGText
-from visual_field_mapper import Colors
+from visual_field_mapper import Colors, Position
 
 from . import BASE_FONT_SIZE, rem
 from .base_component import BaseComponent
+
+
+import drawSvg as draw
+
+
+DEFAULT_POSITION = Position(0, 0)
 
 
 class Text(BaseComponent):
@@ -14,7 +20,7 @@ class Text(BaseComponent):
         font_weight: str = "normal",
         line_height: int = rem(1.5),
         *args,
-        **kwargs
+        **kwargs,
     ):
         self.text = text
         self.font_size = font_size
@@ -24,47 +30,50 @@ class Text(BaseComponent):
         height = line_height
         super().__init__(width, height, *args, **kwargs)
 
-    def render(self, debug: bool = False, *args, **kwargs):
-        text = SVGText(
+    def render(self):
+        position = self.get_position()
+
+        return draw.Text(
             self.text,
-            insert=("50%", (self.line_height - self.font_size) / 2),
-            font_size=self.font_size,
-            alignment_baseline="hanging",
-            text_anchor="middle",
+            self.font_size,
+            x=position.x,
+            y=position.y,
             font_family="Arial,Helvetica",
             font_weight=self.font_weight,
+            alignment_baseline="hanging",
+            text_anchor="middle",
         )
-        children = [text]
-
-        if debug:
-            background = Rect(size=(self.width, self.height))
-            background.fill(Colors.white.value)
-            background.stroke(Colors.red.value, 1)
-            new_children = [background]
-            new_children.extend(children)
-            children = new_children
-
-        return super().render(children, debug=debug, *args, **kwargs)
 
 
 TEXT_EXAMPLE = Text("Lorem Ipsum")
 
 
-class H1(Text):
-    def __init__(self, text):
+class Heading(Text):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            **kwargs,
+            font_weight="bold",
+        )
+
+
+class H1(Heading):
+    def __init__(self, text, *args, **kwargs):
         super().__init__(
             text,
             font_size=rem(4.25),  # 68px
             line_height=rem(4.5),  # 72px
             margin_top=rem(1.5),  # 24px
             margin_bottom=rem(3.0),  # 48px
+            *args,
+            **kwargs,
         )
 
 
 H1_EXAMPLE = H1("Lorem Ipsum")
 
 
-class H2(Text):
+class H2(Heading):
     def __init__(self, text):
         super().__init__(
             text,
@@ -78,7 +87,7 @@ class H2(Text):
 H2_EXAMPLE = H2("Lorem Ipsum")
 
 
-class H3(Text):
+class H3(Heading):
     def __init__(self, text):
         super().__init__(
             text,
@@ -91,7 +100,7 @@ class H3(Text):
 H3_EXAMPLE = H3("Lorem Ipsum")
 
 
-class H4(Text):
+class H4(Heading):
     def __init__(self, text):
         super().__init__(
             text,

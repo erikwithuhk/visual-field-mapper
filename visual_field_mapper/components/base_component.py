@@ -1,17 +1,21 @@
-from svgwrite.container import SVG
-from svgwrite.shapes import Rect
-from visual_field_mapper import Colors
+from typing import Union
+from visual_field_mapper import Position
+
+
+def is_numeric(x):
+    return type(x) == float or type(x) == int
 
 
 class BaseComponent:
     def __init__(
         self,
-        width=0,
-        height=0,
-        margin_top=0,
-        margin_bottom=0,
-        margin_left=0,
-        margin_right=0,
+        width: Union[float, int] = 0,
+        height: Union[float, int] = 0,
+        margin_top: Union[float, int] = 0,
+        margin_bottom: Union[float, int] = 0,
+        margin_left: Union[float, int] = 0,
+        margin_right: Union[float, int] = 0,
+        position: Position = Position(0, 0),
     ):
         self.width = width
         self.height = height
@@ -19,23 +23,16 @@ class BaseComponent:
         self.margin_bottom = margin_bottom
         self.margin_left = margin_left
         self.margin_right = margin_right
-        self.total_width = width + self.margin_left + self.margin_right
-        self.total_height = height + self.margin_top + self.margin_bottom
+        self.position = position
 
-    def render(self, children, insert=(0, 0), debug: bool = False):
-        svg = SVG(insert=insert)
+    def get_position(self):
+        x = self.position.x
+        y = self.position.y
 
-        if debug:
-            background = Rect(size=("100%", "100%"))
-            background.fill(Colors.black.value, opacity=0.1)
-            background.stroke(Colors.red.value, 2)
-            svg.add(background)
+        if is_numeric(x):
+            x = x + self.margin_left
 
-        for i, child in enumerate(children):
-            if issubclass(child.__class__, BaseComponent):
-                children[i] = child.render(insert=(self.margin_left, self.margin_top))
-            else:
-                child.translate(self.margin_left, self.margin_top)
+        if is_numeric(y):
+            y = (y + self.margin_top) * -1
 
-        [svg.add(child) for child in children]
-        return svg
+        return Position(x, y)

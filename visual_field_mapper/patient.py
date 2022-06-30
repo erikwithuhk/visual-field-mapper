@@ -5,6 +5,7 @@ from typing import Dict, List
 import drawSvg as draw
 
 from visual_field_mapper import Colors, Dimensions, Position
+from visual_field_mapper.components.typography import H1
 
 from .archetype import Archetype
 from .garway_heath import GarwayHeathSectorization
@@ -67,17 +68,8 @@ class Patient:
         )
         svg.append(background)
 
-        title = draw.Text(
-            f"Patient #{self.id}",
-            16 * 2,
-            x="50%",
-            y=-margin,
-            height=title_height,
-            font_family="Arial,Helvetica",
-            center=True,
-            font_weight="bold",
-        )
-        svg.append(title)
+        title = H1(f"Patient #{self.id}", position=Position("50%", margin * -1))
+        svg.append(title.render())
 
         position_y = title_height + margin * 2
 
