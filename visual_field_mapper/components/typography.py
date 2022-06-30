@@ -24,7 +24,7 @@ class Text(BaseComponent):
         height = line_height
         super().__init__(width, height, *args, **kwargs)
 
-    def render(self, debug: bool = False):
+    def render(self, debug: bool = False, *args, **kwargs):
         text = SVGText(
             self.text,
             insert=("50%", (self.line_height - self.font_size) / 2),
@@ -44,7 +44,7 @@ class Text(BaseComponent):
             new_children.extend(children)
             children = new_children
 
-        return super().render(children, debug=debug)
+        return super().render(children, debug=debug, *args, **kwargs)
 
 
 TEXT_EXAMPLE = Text("Lorem Ipsum")

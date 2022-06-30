@@ -1,4 +1,3 @@
-from turtle import back
 from svgwrite.container import SVG
 from svgwrite.shapes import Rect
 from visual_field_mapper import Colors
@@ -23,8 +22,8 @@ class BaseComponent:
         self.total_width = width + self.margin_left + self.margin_right
         self.total_height = height + self.margin_top + self.margin_bottom
 
-    def render(self, children, debug: bool = False):
-        svg = SVG()
+    def render(self, children, insert=(0, 0), debug: bool = False):
+        svg = SVG(insert=insert)
 
         if debug:
             background = Rect(size=("100%", "100%"))
@@ -32,6 +31,11 @@ class BaseComponent:
             background.stroke(Colors.red.value, 2)
             svg.add(background)
 
-        [child.translate(self.margin_left, self.margin_top) for child in children]
+        for i, child in enumerate(children):
+            if issubclass(child.__class__, BaseComponent):
+                children[i] = child.render(insert=(self.margin_left, self.margin_top))
+            else:
+                child.translate(self.margin_left, self.margin_top)
+
         [svg.add(child) for child in children]
         return svg
