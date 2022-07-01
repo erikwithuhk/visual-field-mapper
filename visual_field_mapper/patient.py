@@ -64,7 +64,7 @@ class Patient:
             children.append(component)
             self.x += component.size.width
 
-        title = H1(f"Patient #{self.id}", position=Position("50%", self.y))
+        title = H1(f"Patient #{self.id}", position=Position(self.x, self.y))
         add_child(title)
 
         add_height(title.size.height)
@@ -106,10 +106,9 @@ class Patient:
             add_height(rem(2))
 
             matching_archetypes_header = H3(
-                "Matching Archetypes", position=Position("50%", self.y)
+                "Matching Archetypes", position=Position(self.x, self.y)
             )
             add_child(matching_archetypes_header)
-
             add_height(matching_archetypes_header.size.height)
             reset_col()
 

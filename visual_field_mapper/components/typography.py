@@ -37,7 +37,7 @@ class Text(BaseComponent):
             font_family="Arial,Helvetica",
             font_weight=self.font_weight,
             alignment_baseline="hanging",
-            text_anchor="middle",
+            text_anchor="start",
         )
 
 
