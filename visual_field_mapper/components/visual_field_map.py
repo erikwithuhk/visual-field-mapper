@@ -4,6 +4,7 @@ from typing import List, NamedTuple
 
 import drawSvg as draw
 from visual_field_mapper import Colors, Dimensions, Position
+from visual_field_mapper.components import CELL_DIMENSIONS, rem
 from visual_field_mapper.components.base_component import BaseComponent
 from visual_field_mapper.visual_field import Point, VisualField
 
@@ -18,13 +19,12 @@ class Fill(NamedTuple):
     opacity: float
 
 
-CELL_DIMENSIONS = Dimensions(50, 50)
-
-
 class VisualFieldMap(BaseComponent):
     def __init__(self, visual_field: VisualField, *args, **kwargs):
         self.visual_field = visual_field
-        super().__init__(*args, **kwargs)
+        width = CELL_DIMENSIONS.width * 9
+        height = CELL_DIMENSIONS.height * 8
+        super().__init__(width, height, *args, margin=rem(2), **kwargs)
 
     def __repr__(self) -> str:
         return pformat(vars(self))

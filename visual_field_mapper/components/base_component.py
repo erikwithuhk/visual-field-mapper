@@ -11,6 +11,7 @@ class BaseComponent:
         self,
         width: Union[float, int] = 0,
         height: Union[float, int] = 0,
+        margin: Union[float, int] = 0,
         margin_top: Union[float, int] = 0,
         margin_bottom: Union[float, int] = 0,
         margin_left: Union[float, int] = 0,
@@ -19,10 +20,10 @@ class BaseComponent:
     ):
         self.width = width
         self.height = height
-        self.margin_top = margin_top
-        self.margin_bottom = margin_bottom
-        self.margin_left = margin_left
-        self.margin_right = margin_right
+        self.margin_top = margin or margin_top
+        self.margin_bottom = margin or margin_bottom
+        self.margin_left = margin or margin_left
+        self.margin_right = margin or margin_right
         self.position = position
         self.size = Dimensions(
             self.margin_left + self.width + self.margin_right,

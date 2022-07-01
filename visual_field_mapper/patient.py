@@ -7,6 +7,7 @@ import drawSvg as draw
 
 from visual_field_mapper import Colors, Dimensions, Position
 from visual_field_mapper.components import rem
+from visual_field_mapper.components.garway_heath_view import GarwayHeathView
 from visual_field_mapper.components.typography import H1
 from visual_field_mapper.components.visual_field_map import VisualFieldMap
 
@@ -72,6 +73,12 @@ class Patient:
         )
         add_child(visual_field_map)
 
+        garway_heath = GarwayHeathSectorization(self.visual_field)
+        garway_heath_view = GarwayHeathView(
+            garway_heath, limits_by_sector, position=Position(self.x, self.y)
+        )
+        add_child(garway_heath_view)
+
         ###
 
         drawing_dimensions = Dimensions(
@@ -106,15 +113,10 @@ class Patient:
 
         visual_field_position = Position(self.margin, position_y)
 
-        garway_heath = GarwayHeathSectorization(self.visual_field)
         garway_heath_position = Position(
             visual_field_position.x + drawing_dimensions.width + self.margin,
             position_y,
         )
-        garway_heath_map = garway_heath.draw(
-            limits_by_sector, cell_dimensions, garway_heath_position
-        )
-        svg.append(garway_heath_map)
 
         garway_heath_table = garway_heath.draw_table(
             table_width,
