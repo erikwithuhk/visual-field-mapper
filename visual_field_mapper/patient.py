@@ -73,6 +73,8 @@ class Patient:
             svg_dimensions.width,
             svg_dimensions.height,
             fill=Colors.white.value,
+            stroke=Colors.black.value,
+            stroke_width=2,
         )
         svg.append(background)
 
