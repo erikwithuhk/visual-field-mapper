@@ -8,7 +8,10 @@ class Archetype:
     @classmethod
     def parse(self, id: int, fill_colors: List[str]):
         self.colors = fill_colors
-        points = [Point(i + 1, color=color) for i, color in enumerate(fill_colors)]
+        points = [
+            Point(i + 1, color=color if type(color) == str else None)
+            for i, color in enumerate(fill_colors)
+        ]
         visual_field = VisualField(None, points)
         return Archetype(id, visual_field)
 
