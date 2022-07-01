@@ -37,6 +37,6 @@ class BaseComponent:
             x = x + self.margin_left
 
         if is_numeric(y):
-            y = (y + self.margin_top) * -1
+            y = y + self.margin_top
 
         return Position(x, y)

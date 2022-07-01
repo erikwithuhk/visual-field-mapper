@@ -35,7 +35,7 @@ class Text(BaseComponent):
             self.text,
             self.font_size,
             x=position.x,
-            y=position.y,
+            y=position.y * -1,
             color=Colors.black.value,
             font_family="Arial,Helvetica",
             font_weight=self.font_weight,

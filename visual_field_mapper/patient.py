@@ -1,5 +1,6 @@
 import logging
 from pprint import pformat
+from this import d
 from typing import Dict, List
 
 import drawSvg as draw
@@ -7,6 +8,7 @@ import drawSvg as draw
 from visual_field_mapper import Colors, Dimensions, Position
 from visual_field_mapper.components import rem
 from visual_field_mapper.components.typography import H1
+from visual_field_mapper.components.visual_field_map import VisualFieldMap
 
 from .archetype import Archetype
 from .garway_heath import GarwayHeathSectorization
@@ -42,24 +44,44 @@ class Patient:
         self.matching_archetypes = matching_archetypes
 
     def render(self, limits_by_sector):
-        margin = rem(6)
-
-        children = []
-
-        title = H1(f"Patient #{self.id}", position=Position("50%", margin))
-        children.append(title)
+        cell_dimensions = Dimensions(50, 50)
 
         ###
 
-        cell_dimensions = Dimensions(50, 50)
+        self.margin = rem(6)
+        self.x = self.margin
+        self.y = self.margin
+
+        def make_row(height):
+            self.x = self.margin
+            self.y += height
+
+        children = []
+
+        def add_child(component):
+            children.append(component)
+            self.x += component.size.width
+
+        title = H1(f"Patient #{self.id}", position=Position("50%", self.y))
+        add_child(title)
+
+        make_row(title.size.height)
+
+        visual_field_map = VisualFieldMap(
+            self.visual_field, position=Position(self.x, self.y)
+        )
+        add_child(visual_field_map)
+
+        ###
+
         drawing_dimensions = Dimensions(
             9 * cell_dimensions.width, 8 * cell_dimensions.height
         )
 
         table_width = 200
         svg_dimensions = Dimensions(
-            drawing_dimensions.width * 2 + table_width + margin * 4,
-            title.size.height + drawing_dimensions.height + margin * 3,
+            drawing_dimensions.width * 2 + table_width + self.margin * 4,
+            title.size.height + drawing_dimensions.height + self.margin * 3,
         )
         svg = draw.Drawing(
             svg_dimensions.width,
@@ -79,19 +101,14 @@ class Patient:
         svg.append(background)
 
         [svg.append(child.render()) for child in children]
-        # svg.append(title.render())
 
-        position_y = title.size.height + margin * 2
+        position_y = title.size.height + self.margin * 2
 
-        visual_field_position = Position(margin, position_y)
-        visual_field_map = self.visual_field.draw(
-            cell_dimensions, visual_field_position
-        )
-        svg.append(visual_field_map)
+        visual_field_position = Position(self.margin, position_y)
 
         garway_heath = GarwayHeathSectorization(self.visual_field)
         garway_heath_position = Position(
-            visual_field_position.x + drawing_dimensions.width + margin,
+            visual_field_position.x + drawing_dimensions.width + self.margin,
             position_y,
         )
         garway_heath_map = garway_heath.draw(
@@ -102,7 +119,7 @@ class Patient:
         garway_heath_table = garway_heath.draw_table(
             table_width,
             Position(
-                garway_heath_position.x + drawing_dimensions.width + margin,
+                garway_heath_position.x + drawing_dimensions.width + self.margin,
                 position_y + drawing_dimensions.height / 2 - 24 * 3.5,
             ),
         )
