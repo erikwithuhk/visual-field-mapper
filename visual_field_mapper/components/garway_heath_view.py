@@ -7,11 +7,16 @@ from ..garway_heath import SECTORS, GarwayHeathSectorization
 from ..visual_field import Point
 from . import CELL_DIMENSIONS, rem
 from .base_component import BaseComponent
+from .typography import Text
 
 
 class GarwayHeathView(BaseComponent):
     def __init__(
-        self, garway_heath: GarwayHeathSectorization, limits_by_sector, *args, **kwargs
+        self,
+        garway_heath: GarwayHeathSectorization,
+        limits_by_sector,
+        *args,
+        **kwargs,
     ):
         self.garway_heath = garway_heath
         self.limits_by_sector = limits_by_sector
@@ -266,6 +271,10 @@ class GarwayHeathView(BaseComponent):
         position = self.get_position()
         matrix = self.garway_heath.visual_field.to_matrix()
         children = []
+
+        label = Text("Garway-Heath")
+        children.append(label.render())
+
         children.append(self.__draw_sectors(CELL_DIMENSIONS, position))
         children.extend(
             [

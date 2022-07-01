@@ -71,7 +71,7 @@ class Patient:
         reset_col()
 
         visual_field_map = VisualFieldMap(
-            self.visual_field, position=Position(self.x, self.y)
+            self.visual_field, label="Visual Field", position=Position(self.x, self.y)
         )
         add_child(visual_field_map)
 

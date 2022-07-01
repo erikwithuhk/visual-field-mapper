@@ -8,6 +8,7 @@ from .. import Colors, Dimensions, Position
 from ..visual_field import Point, VisualField
 from . import CELL_DIMENSIONS, rem
 from .base_component import BaseComponent
+from .typography import Text
 
 
 class Eye(Enum):
@@ -129,8 +130,9 @@ class _Map(BaseComponent):
 
 
 class VisualFieldMap(BaseComponent):
-    def __init__(self, visual_field: VisualField, *args, **kwargs):
+    def __init__(self, visual_field: VisualField, label: str = None, *args, **kwargs):
         self.visual_field = visual_field
+        self.label = label
         width = CELL_DIMENSIONS.width * 9
         height = CELL_DIMENSIONS.height * 8
         super().__init__(width, height, *args, margin=rem(2), **kwargs)
@@ -140,9 +142,12 @@ class VisualFieldMap(BaseComponent):
 
         children = []
 
-        map = _Map(self.visual_field).render()
+        map = _Map(self.visual_field)
+        children.append(map.render())
 
-        children.append(map)
+        if self.label:
+            label = Text(self.label)
+            children.append(label.render())
 
         return draw.Group(
             children,

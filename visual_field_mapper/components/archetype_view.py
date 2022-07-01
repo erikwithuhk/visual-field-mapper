@@ -13,4 +13,6 @@ class ArchetypeView(BaseComponent):
 
     def render(self):
         position = self.get_position()
-        return VisualFieldMap(self.archtype.visual_field, position=position).render()
+        return VisualFieldMap(
+            self.archtype.visual_field, label=f"{self.archtype.id}", position=position
+        ).render()
