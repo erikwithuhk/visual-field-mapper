@@ -8,7 +8,7 @@ from .archetype import Archetype
 from .components import rem
 from .components.garway_heath_view import GarwayHeathView
 from .components.table import Table
-from .components.typography import H1
+from .components.typography import H1, H3
 from .components.visual_field_map import VisualFieldMap
 from .garway_heath import GarwayHeathSectorization
 from .visual_field import Point, VisualField
@@ -43,11 +43,15 @@ class Patient:
         self.matching_archetypes = matching_archetypes
 
     def render(self, limits_by_sector):
+
         self.margin = rem(6)
         self.x = self.margin
         self.y = self.margin
 
+        self.width = self.x
+
         def reset_row():
+            self.width = max(self.width, self.x)
             self.x = self.margin
 
         def add_height(height):
@@ -62,8 +66,8 @@ class Patient:
         title = H1(f"Patient #{self.id}", position=Position("50%", self.y))
         add_child(title)
 
-        reset_row()
         add_height(title.size.height)
+        reset_row()
 
         visual_field_map = VisualFieldMap(
             self.visual_field, position=Position(self.x, self.y)
@@ -88,10 +92,24 @@ class Patient:
         )
         add_child(table)
 
-        add_height(max(visual_field_map.size.height, garway_heath_view.size.height))
+        add_height(
+            max(
+                visual_field_map.size.height,
+                garway_heath_view.size.height,
+                table.size.height,
+            )
+        )
+        reset_row()
+
+        add_height(rem(2))
+
+        matching_archetypes_header = H3(
+            "Matching Archetypes", position=Position("50%", self.y)
+        )
+        add_child(matching_archetypes_header)
 
         svg_dimensions = Dimensions(
-            self.x + self.margin,
+            self.width + self.margin,
             self.y + self.margin,
         )
 

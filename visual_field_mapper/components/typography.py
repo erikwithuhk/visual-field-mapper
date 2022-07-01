@@ -48,8 +48,8 @@ class Heading(Text):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,
-            **kwargs,
             font_weight="bold",
+            **kwargs,
         )
 
 
@@ -70,13 +70,15 @@ H1_EXAMPLE = H1("Lorem Ipsum")
 
 
 class H2(Heading):
-    def __init__(self, text):
+    def __init__(self, text, *args, **kwargs):
         super().__init__(
             text,
             font_size=rem(2.625),  # 42px
             line_height=rem(3),  # 48px
             margin_top=rem(1.5),  # 24px
             margin_bottom=rem(1.5),  # 24px
+            *args,
+            **kwargs,
         )
 
 
@@ -84,12 +86,14 @@ H2_EXAMPLE = H2("Lorem Ipsum")
 
 
 class H3(Heading):
-    def __init__(self, text):
+    def __init__(self, text, *args, **kwargs):
         super().__init__(
             text,
             font_size=rem(1.625),  # 26px
             line_height=rem(3),  # 48px
             margin_top=rem(1.5),  # 24px
+            *args,
+            **kwargs,
         )
 
 
@@ -97,12 +101,14 @@ H3_EXAMPLE = H3("Lorem Ipsum")
 
 
 class H4(Heading):
-    def __init__(self, text):
+    def __init__(self, text, *args, **kwargs):
         super().__init__(
             text,
             font_size=rem(1),  # 16px
             line_height=rem(1.5),  # 24px
             margin_top=rem(1.5),  # 24px
+            *args,
+            **kwargs,
         )
 
 
