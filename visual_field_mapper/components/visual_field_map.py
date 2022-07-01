@@ -20,12 +20,12 @@ class Fill(NamedTuple):
     opacity: float
 
 
-class VisualFieldMap(BaseComponent):
-    def __init__(self, visual_field: VisualField, *args, **kwargs):
+class _Map(BaseComponent):
+    def __init__(self, visual_field: VisualField):
         self.visual_field = visual_field
         width = CELL_DIMENSIONS.width * 9
         height = CELL_DIMENSIONS.height * 8
-        super().__init__(width, height, *args, margin=rem(2), **kwargs)
+        super().__init__(width, height)
 
     def __repr__(self) -> str:
         return pformat(vars(self))
@@ -124,7 +124,27 @@ class VisualFieldMap(BaseComponent):
 
         return draw.Group(
             rows,
-            x=position.x,
-            y=position.y,
+            transform=f"translate({position.x},{position.y})",
+        )
+
+
+class VisualFieldMap(BaseComponent):
+    def __init__(self, visual_field: VisualField, *args, **kwargs):
+        self.visual_field = visual_field
+        width = CELL_DIMENSIONS.width * 9
+        height = CELL_DIMENSIONS.height * 8
+        super().__init__(width, height, *args, margin=rem(2), **kwargs)
+
+    def render(self):
+        position = self.get_position()
+
+        children = []
+
+        map = _Map(self.visual_field).render()
+
+        children.append(map)
+
+        return draw.Group(
+            children,
             transform=f"translate({position.x},{position.y})",
         )
