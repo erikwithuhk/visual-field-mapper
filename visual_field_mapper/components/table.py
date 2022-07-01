@@ -29,7 +29,7 @@ class Table(BaseComponent):
     ):
         position = self.get_position()
 
-        font_size = 16
+        font_size = rem(1)
 
         text_formatting = {
             "font_family": "Arial,Helvetica",
