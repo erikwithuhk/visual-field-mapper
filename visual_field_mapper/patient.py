@@ -6,6 +6,7 @@ import drawSvg as draw
 from . import Colors, Dimensions, Position
 from .archetype import Archetype
 from .components import rem
+from .components.archetype_view import ArchetypeView
 from .components.garway_heath_view import GarwayHeathView
 from .components.table import Table
 from .components.typography import H1, H3
@@ -50,7 +51,7 @@ class Patient:
 
         self.width = self.x
 
-        def reset_row():
+        def reset_col():
             self.width = max(self.width, self.x)
             self.x = self.margin
 
@@ -67,7 +68,7 @@ class Patient:
         add_child(title)
 
         add_height(title.size.height)
-        reset_row()
+        reset_col()
 
         visual_field_map = VisualFieldMap(
             self.visual_field, position=Position(self.x, self.y)
@@ -99,14 +100,29 @@ class Patient:
                 table.size.height,
             )
         )
-        reset_row()
+        reset_col()
 
-        add_height(rem(2))
+        if len(self.matching_archetypes):
+            add_height(rem(2))
 
-        matching_archetypes_header = H3(
-            "Matching Archetypes", position=Position("50%", self.y)
-        )
-        add_child(matching_archetypes_header)
+            matching_archetypes_header = H3(
+                "Matching Archetypes", position=Position("50%", self.y)
+            )
+            add_child(matching_archetypes_header)
+
+            add_height(matching_archetypes_header.size.height)
+            reset_col()
+
+            view_height = 0
+
+            for archetype in self.matching_archetypes:
+                view = ArchetypeView(archetype, position=Position(self.x, self.y))
+                view_height = max(view_height, view.size.height)
+                add_child(view)
+
+            add_height(view_height)
+
+            reset_col()
 
         svg_dimensions = Dimensions(
             self.width + self.margin,

@@ -175,13 +175,6 @@ def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
         for id, fill_colors in fill_colors_by_archetype.iterrows()
     ]
     archetypes_by_id = {archetype.id: archetype for archetype in all_archetypes}
-    archetype_svgs = [archetype.render() for archetype in all_archetypes]
-
-    os.makedirs(ARCHETYPE_DIR, exist_ok=True)
-    [
-        svg.saveSvg(f"{ARCHETYPE_DIR}/archetype_{i + 1}.svg")
-        for i, svg in enumerate(archetype_svgs)
-    ]
 
     patient = Patient.parse(id, row, archetypes_by_id)
 
