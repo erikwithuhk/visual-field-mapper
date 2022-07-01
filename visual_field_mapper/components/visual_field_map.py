@@ -3,10 +3,11 @@ from pprint import pformat
 from typing import List, NamedTuple
 
 import drawSvg as draw
-from visual_field_mapper import Colors, Dimensions, Position
-from visual_field_mapper.components import CELL_DIMENSIONS, rem
-from visual_field_mapper.components.base_component import BaseComponent
-from visual_field_mapper.visual_field import Point, VisualField
+
+from .. import Colors, Dimensions, Position
+from ..visual_field import Point, VisualField
+from . import CELL_DIMENSIONS, rem
+from .base_component import BaseComponent
 
 
 class Eye(Enum):

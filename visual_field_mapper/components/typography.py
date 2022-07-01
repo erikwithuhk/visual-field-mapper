@@ -1,11 +1,8 @@
-from visual_field_mapper import Colors, Position
-
-from . import BASE_FONT_SIZE, rem
-from .base_component import BaseComponent
-
-
 import drawSvg as draw
 
+from .. import Colors, Position
+from . import BASE_FONT_SIZE, rem
+from .base_component import BaseComponent
 
 DEFAULT_POSITION = Position(0, 0)
 

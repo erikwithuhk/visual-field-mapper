@@ -11,7 +11,7 @@ from xml.dom import minidom
 import numpy as np
 import pandas as pd
 
-from visual_field_mapper import (
+from . import (
     ARCHETYPE_DATA_FILEPATH,
     ARCHETYPE_DIR,
     ARCHETYPE_FILL_COLORS_FILEPATH,
@@ -24,7 +24,6 @@ from visual_field_mapper import (
     STUDY_DATA_FILEPATH,
     SVG_DIR,
 )
-
 from .archetype import Archetype
 from .file_reader import FileReader
 from .garway_heath import SECTORS, GarwayHeathSectorization

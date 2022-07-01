@@ -2,7 +2,7 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import NamedTuple, Union
+from typing import NamedTuple
 
 __author__ = "Erik Jönsson"
 __email__ = "efjonsson@gmail.com"

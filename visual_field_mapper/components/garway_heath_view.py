@@ -1,12 +1,12 @@
 from typing import List
 
 import drawSvg as draw
-from visual_field_mapper import Colors, Dimensions, Position
-from visual_field_mapper.components import rem
-from visual_field_mapper.components.base_component import BaseComponent
-from visual_field_mapper.components.visual_field_map import CELL_DIMENSIONS
-from visual_field_mapper.garway_heath import SECTORS, GarwayHeathSectorization
-from visual_field_mapper.visual_field import Point
+
+from .. import Colors, Dimensions, Position
+from ..garway_heath import SECTORS, GarwayHeathSectorization
+from ..visual_field import Point
+from . import CELL_DIMENSIONS, rem
+from .base_component import BaseComponent
 
 
 class GarwayHeathView(BaseComponent):
@@ -15,7 +15,9 @@ class GarwayHeathView(BaseComponent):
     ):
         self.garway_heath = garway_heath
         self.limits_by_sector = limits_by_sector
-        super().__init__(*args, margin=rem(2), **kwargs)
+        width = CELL_DIMENSIONS.width * 9
+        height = CELL_DIMENSIONS.height * 8
+        super().__init__(width, height, *args, margin=rem(2), **kwargs)
 
     def __draw_point(self, dimensions: Dimensions, position: Position) -> draw.Circle:
         return draw.Circle(

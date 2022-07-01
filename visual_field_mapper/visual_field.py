@@ -4,7 +4,7 @@ from typing import List, NamedTuple
 
 import drawSvg as draw
 
-from visual_field_mapper import Colors, Dimensions, Position
+from . import Colors, Dimensions, Position
 
 
 class Eye(Enum):

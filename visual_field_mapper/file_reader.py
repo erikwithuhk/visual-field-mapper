@@ -1,5 +1,5 @@
-from typing import Any, List
 import csv
+from typing import Any, List
 
 
 class FileReader:

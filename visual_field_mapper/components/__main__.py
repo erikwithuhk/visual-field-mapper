@@ -3,8 +3,8 @@ import os
 from enum import Enum
 
 from svgwrite import Drawing
-from visual_field_mapper import OUT_DIR
 
+from .. import OUT_DIR
 from . import rem
 from .table import TABLE_EXAMPLE
 from .typography import H1_EXAMPLE, H2_EXAMPLE, H3_EXAMPLE, H4_EXAMPLE, TEXT_EXAMPLE

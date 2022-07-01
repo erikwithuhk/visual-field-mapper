@@ -1,5 +1,6 @@
 from typing import Union
-from visual_field_mapper import Dimensions, Position
+
+from .. import Dimensions, Position
 
 
 def is_numeric(x):

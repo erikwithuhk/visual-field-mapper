@@ -3,9 +3,8 @@ from typing import List
 
 import drawSvg as draw
 
-from visual_field_mapper.components.visual_field_map import VisualFieldMap
-from visual_field_mapper.components.base_component import BaseComponent
-
+from .components.base_component import BaseComponent
+from .components.visual_field_map import VisualFieldMap
 from .visual_field import Point, VisualField
 
 

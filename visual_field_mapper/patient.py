@@ -1,17 +1,15 @@
-import logging
 from pprint import pformat
-from this import d
 from typing import Dict, List
 
 import drawSvg as draw
 
-from visual_field_mapper import Colors, Dimensions, Position
-from visual_field_mapper.components import rem
-from visual_field_mapper.components.garway_heath_view import GarwayHeathView
-from visual_field_mapper.components.typography import H1
-from visual_field_mapper.components.visual_field_map import VisualFieldMap
-
+from . import Colors, Dimensions, Position
 from .archetype import Archetype
+from .components import rem
+from .components.garway_heath_view import GarwayHeathView
+from .components.table import Table
+from .components.typography import H1
+from .components.visual_field_map import VisualFieldMap
 from .garway_heath import GarwayHeathSectorization
 from .visual_field import Point, VisualField
 
@@ -45,16 +43,14 @@ class Patient:
         self.matching_archetypes = matching_archetypes
 
     def render(self, limits_by_sector):
-        cell_dimensions = Dimensions(50, 50)
-
-        ###
-
         self.margin = rem(6)
         self.x = self.margin
         self.y = self.margin
 
-        def make_row(height):
+        def reset_row():
             self.x = self.margin
+
+        def add_height(height):
             self.y += height
 
         children = []
@@ -66,7 +62,8 @@ class Patient:
         title = H1(f"Patient #{self.id}", position=Position("50%", self.y))
         add_child(title)
 
-        make_row(title.size.height)
+        reset_row()
+        add_height(title.size.height)
 
         visual_field_map = VisualFieldMap(
             self.visual_field, position=Position(self.x, self.y)
@@ -79,23 +76,32 @@ class Patient:
         )
         add_child(garway_heath_view)
 
-        ###
-
-        drawing_dimensions = Dimensions(
-            9 * cell_dimensions.width, 8 * cell_dimensions.height
+        means_by_sector = garway_heath.get_means_by_sector()
+        table = Table(
+            [
+                list(means_by_sector.keys()),
+                list(means_by_sector.values()),
+            ],
+            headers=["Sector", "Average TD"],
+            col_widths=[75, 115],
+            position=Position(self.x, self.y + rem(8)),
         )
+        add_child(table)
 
-        table_width = 200
+        add_height(max(visual_field_map.size.height, garway_heath_view.size.height))
+
         svg_dimensions = Dimensions(
-            drawing_dimensions.width * 2 + table_width + self.margin * 4,
-            title.size.height + drawing_dimensions.height + self.margin * 3,
+            self.x + self.margin,
+            self.y + self.margin,
         )
+
         svg = draw.Drawing(
             svg_dimensions.width,
             svg_dimensions.height,
             origin=(0, -svg_dimensions.height),
             displayInline=False,
         )
+
         background = draw.Rectangle(
             0,
             -svg_dimensions.height,
@@ -105,28 +111,7 @@ class Patient:
             stroke=Colors.black.value,
             stroke_width=2,
         )
+
         svg.append(background)
-
         [svg.append(child.render()) for child in children]
-
-        position_y = title.size.height + self.margin * 2
-
-        visual_field_position = Position(self.margin, position_y)
-
-        garway_heath_position = Position(
-            visual_field_position.x + drawing_dimensions.width + self.margin,
-            position_y,
-        )
-
-        garway_heath_table = garway_heath.draw_table(
-            table_width,
-            Position(
-                garway_heath_position.x + drawing_dimensions.width + self.margin,
-                position_y + drawing_dimensions.height / 2 - 24 * 3.5,
-            ),
-        )
-        svg.append(
-            garway_heath_table,
-        )
-
         return svg
