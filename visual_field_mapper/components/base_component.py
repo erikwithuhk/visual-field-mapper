@@ -26,14 +26,22 @@ class BaseComponent:
         self.margin_left = margin or margin_left
         self.margin_right = margin or margin_right
         self.position = position
+        self.initial_position = self.get_position()
         self.size = Dimensions(
             self.margin_left + self.width + self.margin_right,
             self.margin_top + self.height + self.margin_bottom,
         )
+        self.x = self.initial_position.x
+        self.y = self.initial_position.y
+        self.children = []
+
+    def add_child(self, component):
+        self.children.append(component)
+        self.x += component.size.width
 
     def get_position(self):
-        x = self.position.x
-        y = self.position.y
+        x = self.position.x or 0
+        y = self.position.y or 0
 
         if is_numeric(x):
             x = x + self.margin_left
