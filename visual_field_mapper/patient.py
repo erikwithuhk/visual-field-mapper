@@ -106,7 +106,7 @@ class Patient:
             add_height(rem(2))
 
             matching_archetypes_header = H3(
-                "Matching Archetypes", position=Position(self.x, self.y)
+                "Matching Archetypes (≥ 7%)", position=Position(self.x, self.y)
             )
             add_child(matching_archetypes_header)
             add_height(matching_archetypes_header.size.height)
