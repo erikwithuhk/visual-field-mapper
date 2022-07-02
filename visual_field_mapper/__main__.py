@@ -8,6 +8,7 @@ from pprint import pformat
 from typing import List
 from xml.dom import minidom
 
+import drawSvg as draw
 import numpy as np
 import pandas as pd
 
@@ -22,6 +23,8 @@ from . import (
     PNG_DIR,
     STUDY_DATA_FILEPATH,
     SVG_DIR,
+    Colors,
+    Dimensions,
 )
 from .archetype import Archetype
 from .components.patient_view import PatientView
@@ -183,7 +186,27 @@ def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
 
     log("Rendering SVG")
     patient_view = PatientView(patient, limits_by_sector)
-    svg = patient_view.render()
+    rendered_patient_view = patient_view.render()
+
+    svg = draw.Drawing(
+        patient_view.size.width,
+        patient_view.size.height,
+        origin=(0, -patient_view.size.height),
+        displayInline=False,
+    )
+
+    background = draw.Rectangle(
+        0,
+        -patient_view.size.height,
+        patient_view.size.width,
+        patient_view.size.height,
+        fill=Colors.white.value,
+        stroke=Colors.black.value,
+        stroke_width=2,
+    )
+
+    svg.append(background)
+    svg.append(rendered_patient_view)
 
     log("Saving SVG")
     svg.saveSvg(f"{IMAGE_DIR}/SVG/patient_{patient.id}.svg")

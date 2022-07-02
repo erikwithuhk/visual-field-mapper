@@ -27,10 +27,7 @@ class BaseComponent:
         self.margin_right = margin or margin_right
         self.position = position
         self.initial_position = self.get_position()
-        self.size = Dimensions(
-            self.margin_left + self.width + self.margin_right,
-            self.margin_top + self.height + self.margin_bottom,
-        )
+        self.size = self.get_size()
         self.x = self.initial_position.x
         self.y = self.initial_position.y
         self.children = []
@@ -61,3 +58,12 @@ class BaseComponent:
             y = y + self.margin_top
 
         return Position(x, y)
+
+    def get_size(self):
+        return Dimensions(
+            self.margin_left + self.width + self.margin_right,
+            self.margin_top + self.height + self.margin_bottom,
+        )
+
+    def render(self):
+        return [component.render() for component in self.children]

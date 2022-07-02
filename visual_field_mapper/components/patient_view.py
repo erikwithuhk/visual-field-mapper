@@ -90,28 +90,4 @@ class PatientView(BaseComponent):
 
             self.reset_x()
 
-        svg_dimensions = Dimensions(
-            self.width + self.margin_right,
-            self.y + +self.margin_bottom,
-        )
-
-        svg = draw.Drawing(
-            svg_dimensions.width,
-            svg_dimensions.height,
-            origin=(0, -svg_dimensions.height),
-            displayInline=False,
-        )
-
-        background = draw.Rectangle(
-            0,
-            -svg_dimensions.height,
-            svg_dimensions.width,
-            svg_dimensions.height,
-            fill=Colors.white.value,
-            stroke=Colors.black.value,
-            stroke_width=2,
-        )
-
-        svg.append(background)
-        [svg.append(child.render()) for child in self.children]
-        return svg
+        return draw.Group(super().render())
