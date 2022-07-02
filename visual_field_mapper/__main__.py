@@ -188,18 +188,20 @@ def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
     patient_view = PatientView(patient, limits_by_sector)
     rendered_patient_view = patient_view.render()
 
+    svg_dimensions = patient_view.get_size()
+
     svg = draw.Drawing(
-        patient_view.size.width,
-        patient_view.size.height,
-        origin=(0, -patient_view.size.height),
+        svg_dimensions.width,
+        svg_dimensions.height,
+        origin=(0, -svg_dimensions.height),
         displayInline=False,
     )
 
     background = draw.Rectangle(
         0,
-        -patient_view.size.height,
-        patient_view.size.width,
-        patient_view.size.height,
+        -svg_dimensions.height,
+        svg_dimensions.width,
+        svg_dimensions.height,
         fill=Colors.white.value,
         stroke=Colors.black.value,
         stroke_width=2,

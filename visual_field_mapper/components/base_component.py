@@ -41,6 +41,7 @@ class BaseComponent:
         self.y = self.initial_position.y
 
     def add_height(self, height):
+        self.height += height
         self.y += height
 
     def add_child(self, component):
