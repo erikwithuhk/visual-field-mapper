@@ -43,6 +43,9 @@ class BaseComponent:
         self.height = max(self.height, self.y)
         self.y = self.initial_position.y
 
+    def add_height(self, height):
+        self.y += height
+
     def add_child(self, component):
         self.children.append(component)
         self.x += component.size.width

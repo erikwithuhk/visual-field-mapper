@@ -28,13 +28,10 @@ class PatientView(BaseComponent):
         )
 
     def render(self):
-        def add_height(height):
-            self.y += height
-
         title = H1(f"Patient #{self.patient.id}", position=Position(self.x, self.y))
         self.add_child(title)
 
-        add_height(title.size.height)
+        self.add_height(title.size.height)
         self.reset_x()
 
         visual_field_map = VisualFieldMap(
@@ -63,7 +60,7 @@ class PatientView(BaseComponent):
         )
         self.add_child(table)
 
-        add_height(
+        self.add_height(
             max(
                 visual_field_map.size.height,
                 garway_heath_view.size.height,
@@ -73,13 +70,13 @@ class PatientView(BaseComponent):
         self.reset_x()
 
         if len(self.patient.matching_archetypes):
-            add_height(rem(2))
+            self.add_height(rem(2))
 
             matching_archetypes_header = H3(
                 "Matching Archetypes (≥ 7%)", position=Position(self.x, self.y)
             )
             self.add_child(matching_archetypes_header)
-            add_height(matching_archetypes_header.size.height)
+            self.add_height(matching_archetypes_header.size.height)
             self.reset_x()
 
             view_height = 0
@@ -89,7 +86,7 @@ class PatientView(BaseComponent):
                 view_height = max(view_height, view.size.height)
                 self.add_child(view)
 
-            add_height(view_height)
+            self.add_height(view_height)
 
             self.reset_x()
 
