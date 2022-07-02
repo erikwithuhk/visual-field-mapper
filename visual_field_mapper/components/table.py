@@ -11,9 +11,9 @@ class Cell(BaseComponent):
         self.content = content
         super().__init__()
 
-    def render(self, debug: bool = False, *args, **kwargs):
+    def render(self, *args, **kwargs):
         text = Text(f"{self.content}")
-        return super().render([text], debug=debug, *args, **kwargs)
+        return super().render([text], *args, **kwargs)
 
 
 class Table(BaseComponent):
