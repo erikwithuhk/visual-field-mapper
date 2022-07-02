@@ -35,6 +35,14 @@ class BaseComponent:
         self.y = self.initial_position.y
         self.children = []
 
+    def reset_x(self):
+        self.width = max(self.width, self.x)
+        self.x = self.initial_position.x
+
+    def reset_y(self):
+        self.height = max(self.height, self.y)
+        self.y = self.initial_position.y
+
     def add_child(self, component):
         self.children.append(component)
         self.x += component.size.width

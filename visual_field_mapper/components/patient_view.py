@@ -28,16 +28,6 @@ class PatientView(BaseComponent):
         )
 
     def render(self):
-        # self.margin = rem(6)
-        # self.x = self.margin
-        # self.y = self.margin
-
-        # self.width = self.x
-
-        def reset_col():
-            self.width = max(self.width, self.x)
-            self.x = self.margin_left
-
         def add_height(height):
             self.y += height
 
@@ -45,7 +35,7 @@ class PatientView(BaseComponent):
         self.add_child(title)
 
         add_height(title.size.height)
-        reset_col()
+        self.reset_x()
 
         visual_field_map = VisualFieldMap(
             self.patient.visual_field,
@@ -80,7 +70,7 @@ class PatientView(BaseComponent):
                 table.size.height,
             )
         )
-        reset_col()
+        self.reset_x()
 
         if len(self.patient.matching_archetypes):
             add_height(rem(2))
@@ -90,7 +80,7 @@ class PatientView(BaseComponent):
             )
             self.add_child(matching_archetypes_header)
             add_height(matching_archetypes_header.size.height)
-            reset_col()
+            self.reset_x()
 
             view_height = 0
 
@@ -101,7 +91,7 @@ class PatientView(BaseComponent):
 
             add_height(view_height)
 
-            reset_col()
+            self.reset_x()
 
         svg_dimensions = Dimensions(
             self.width + self.margin_right,
