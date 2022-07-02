@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+autoflake --in-place --remove-unused-variables --remove-all-unused-imports ./visual_field_mapper/**/**/*

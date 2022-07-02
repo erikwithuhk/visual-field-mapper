@@ -13,7 +13,6 @@ import pandas as pd
 
 from . import (
     ARCHETYPE_DATA_FILEPATH,
-    ARCHETYPE_DIR,
     ARCHETYPE_FILL_COLORS_FILEPATH,
     ASSETS_DIR,
     IMAGE_DIR,

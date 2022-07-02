@@ -36,7 +36,6 @@ def test_point_constructor_generates_fill(td, expected_color, expected_opacity):
 
 
 def test_visual_field_construtctor(points):
-    patient_id = "patient_id"
     eye = "OD"
     visual_field = VisualField(eye, points)
     assert visual_field.eye == eye

@@ -2,7 +2,6 @@ import pytest
 from visual_field_mapper.garway_heath import (
     GarwayHeathSectorization,
     Sector,
-    SECTORS,
     get_sector,
 )
 from visual_field_mapper.visual_field import Point, VisualField
