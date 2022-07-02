@@ -24,6 +24,7 @@ from . import (
     SVG_DIR,
 )
 from .archetype import Archetype
+from .components.patient_view import PatientView
 from .file_reader import FileReader
 from .garway_heath import SECTORS, GarwayHeathSectorization
 from .patient import Patient
@@ -181,7 +182,8 @@ def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
         return logger.info(f"{s} >> %s", pformat({"patient_id": patient.id}))
 
     log("Rendering SVG")
-    svg = patient.render(limits_by_sector)
+    patient_view = PatientView(patient, limits_by_sector)
+    svg = patient_view.render()
 
     log("Saving SVG")
     svg.saveSvg(f"{IMAGE_DIR}/SVG/patient_{patient.id}.svg")
