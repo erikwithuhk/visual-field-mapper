@@ -144,21 +144,6 @@ def __get_patient_data():
     # Select the columns needed to find matching archetypes
     archetypes_df = archetypes_df[[f"AT{i}" for i in range(1, 17)]]
 
-    def find_matching_archetype_ids(row) -> List[int]:
-        matching_archetypes_cols = row[
-            pd.to_numeric(row, errors="coerce") >= 0.07
-        ].index.to_list()
-        return [int(col.replace("AT", "")) for col in matching_archetypes_cols]
-
-    # Get matching archetypes
-    archetypes_df[matching_archetypes_column] = archetypes_df.apply(
-        find_matching_archetype_ids,
-        axis=1,
-    )
-
-    # Only keep matching archetypes column
-    archetypes_df = archetypes_df[[matching_archetypes_column]]
-
     merge_df = pd.merge(tds_df, archetypes_df, on=patient_id_column, indicator=True)
 
     missing = merge_df.loc[merge_df["_merge"] != "both"]
@@ -172,21 +157,20 @@ def __get_patient_data():
 def __save_images(id, row, limits_by_sector, fill_colors_by_archetype):
     logger = logging.getLogger("__save_images")
 
-    logger.info("Saving matching_archetype SVGs")
-    all_archetypes = [
-        Archetype.parse(id, fill_colors)
-        for id, fill_colors in fill_colors_by_archetype.iterrows()
-    ]
-    archetypes_by_id = {archetype.id: archetype for archetype in all_archetypes}
-
-    patient = Patient.parse(id, row, archetypes_by_id)
+    patient = Patient.parse(id, row)
 
     def log(s):
         return logger.info(f"{s} >> %s", pformat({"patient_id": patient.id}))
 
     log("Rendering SVG")
     patient_view = PatientView(patient, limits_by_sector)
-    rendered_patient_view = patient_view.render()
+
+    all_archetypes = [
+        Archetype.parse(id, fill_colors)
+        for id, fill_colors in fill_colors_by_archetype.iterrows()
+    ]
+    archetypes_by_id = {archetype.id: archetype for archetype in all_archetypes}
+    rendered_patient_view = patient_view.render(archetypes_by_id)
 
     svg_dimensions = patient_view.get_size()
 

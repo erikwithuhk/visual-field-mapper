@@ -10,7 +10,7 @@ class Patient:
         pass
 
     @classmethod
-    def parse(self, id, row, archetypes_by_id: Dict[int, Archetype]):
+    def parse(self, id, row):
         points = []
 
         for i in range(1, 55):
@@ -21,10 +21,13 @@ class Patient:
 
         visual_field = VisualField(row.Eye, points)
         garway_heath = GarwayHeathSectorization(visual_field)
-        matching_archetypes = [
-            archetypes_by_id[archetype_id] for archetype_id in row.matching_archetypes
-        ]
-        patient = Patient(id, visual_field, garway_heath, matching_archetypes)
+        match_by_archetype = {
+            archetype_id: row.loc[f"AT{archetype_id}"] for archetype_id in range(1, 17)
+        }
+        # matching_archetypes = [
+        #     archetypes_by_id[archetype_id] for archetype_id in row.matching_archetypes
+        # ]
+        patient = Patient(id, visual_field, garway_heath, match_by_archetype)
         return patient
 
     def __init__(
@@ -32,9 +35,9 @@ class Patient:
         id: int,
         visual_field: VisualField,
         garway_heath: GarwayHeathSectorization,
-        matching_archetypes: List[Archetype],
+        match_by_archetype: Dict[int, float],
     ):
         self.id = id
         self.visual_field = visual_field
         self.garway_heath = garway_heath
-        self.matching_archetypes = matching_archetypes
+        self.match_by_archetype = match_by_archetype

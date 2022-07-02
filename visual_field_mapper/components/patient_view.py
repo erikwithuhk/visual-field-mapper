@@ -1,6 +1,9 @@
+from typing import Dict
+
 import drawSvg as draw
 
 from .. import Colors, Dimensions, Position
+from ..archetype import Archetype
 from ..patient import Patient
 from . import rem
 from .archetype_view import ArchetypeView
@@ -9,6 +12,8 @@ from .garway_heath_view import GarwayHeathView
 from .table import Table
 from .typography import H1, H3
 from .visual_field_map import VisualFieldMap
+
+ARCHETYPE_MATCH_THRESHOLD = 0.07
 
 
 class PatientView(BaseComponent):
@@ -27,7 +32,7 @@ class PatientView(BaseComponent):
             margin_bottom=margin,
         )
 
-    def render(self):
+    def render(self, archetypes_by_id: Dict[int, Archetype]):
         title = H1(f"Patient #{self.patient.id}", position=Position(self.x, self.y))
         self.add_child(title)
 
@@ -69,11 +74,23 @@ class PatientView(BaseComponent):
         )
         self.reset_x()
 
-        if len(self.patient.matching_archetypes):
+        matching_archetypes = [
+            {
+                id: archetype_id,
+                "match": match,
+                "archetype": archetypes_by_id[archetype_id],
+            }
+            for archetype_id, match in self.patient.match_by_archetype.items()
+            if match >= ARCHETYPE_MATCH_THRESHOLD
+        ]
+        matching_archetypes.sort(reverse=True, key=lambda x: x["match"])
+
+        if len(matching_archetypes):
             self.add_height(rem(2))
 
             matching_archetypes_header = H3(
-                "Matching Archetypes (≥ 7%)", position=Position(self.x, self.y)
+                f"Matching Archetypes (≥ {round(ARCHETYPE_MATCH_THRESHOLD * 100)}%)",
+                position=Position(self.x, self.y),
             )
             self.add_child(matching_archetypes_header)
             self.add_height(matching_archetypes_header.size.height)
@@ -81,8 +98,12 @@ class PatientView(BaseComponent):
 
             view_height = 0
 
-            for archetype in self.patient.matching_archetypes:
-                view = ArchetypeView(archetype, position=Position(self.x, self.y))
+            for archetype_data in matching_archetypes:
+                view = ArchetypeView(
+                    archetype_data.get("archetype"),
+                    archetype_data.get("match"),
+                    position=Position(self.x, self.y),
+                )
                 view_height = max(view_height, view.size.height)
                 self.add_child(view)
 
